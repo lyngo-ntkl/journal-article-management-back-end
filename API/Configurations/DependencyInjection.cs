@@ -1,3 +1,4 @@
+using API.Configurations;
 using API.Entities;
 using API.Repositories;
 using API.Services;
@@ -15,6 +16,8 @@ namespace API.Utils {
             services.AddScoped<UserService, UserServiceImplementation>();
             // controllers
             services.AddControllers();
+            // mapper
+            services.AddAutoMapper(typeof(MapperConfiguration));
         }
     }
 }
