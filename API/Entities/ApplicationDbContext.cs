@@ -13,7 +13,17 @@ namespace API.Entities {
         public DbSet<Reference> References {get; set;}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Reference>().HasKey(reference => new {reference.ArticleId, reference.ReferenceArticleId});
+            modelBuilder.Entity<Reference>()
+                .HasOne(reference => reference.Article)
+                .WithMany(article => article.CitationBy)
+                .HasForeignKey(reference => reference.ArticleId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Reference>()
+                .HasOne(reference => reference.ReferenceArticle)
+                .WithMany(article => article.References)
+                .HasForeignKey(reference => reference.ReferenceArticleId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

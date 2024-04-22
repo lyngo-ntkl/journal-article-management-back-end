@@ -5,20 +5,25 @@ namespace API.Repositories {
         int Save();
         Task<int> SaveAsync();
         UserRepository UserRepository {get;}
+        ArticleRepository ArticleRepository {get;}
     }
 
     public class UnitOfWorkImplementation : UnitOfWork
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly UserRepository _userRepository;
+        private readonly ArticleRepository _articleRepository;
 
-        public UnitOfWorkImplementation(ApplicationDbContext dbContext, UserRepository userRepository)
+        public UnitOfWorkImplementation(ApplicationDbContext dbContext, UserRepository userRepository, ArticleRepository articleRepository)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
             this._userRepository = userRepository;
+            this._articleRepository = articleRepository;
         }
 
         public UserRepository UserRepository => _userRepository;
+
+        public ArticleRepository ArticleRepository => _articleRepository;
 
         public int Save()
         {

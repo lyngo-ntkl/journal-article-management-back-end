@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Repositories {
     public interface GenericRepository<T> where T: BaseEntity {
         void Delete(T entity);
-        void DeleteAsync(int id);
+        Task DeleteAsync(int id);
         T? Get(int id);
         List<T> GetAll();
         Task<List<T>> GetAllAsync();
         Task<T?> GetAsync(int id);
         void Insert(T entity);
-        void InsertAsync(T entity);
+        Task InsertAsync(T entity);
         void Update(T entity);
     }
 
@@ -31,7 +31,7 @@ namespace API.Repositories {
             _dbSet.Remove(entity);
         }
 
-        public async void DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             T? entity = await this.GetAsync(id);
             if (entity != null) {
@@ -64,7 +64,7 @@ namespace API.Repositories {
             this._dbSet.Add(entity);
         }
 
-        public async void InsertAsync(T entity)
+        public async Task InsertAsync(T entity)
         {
             await this._dbSet.AddAsync(entity);
         }
