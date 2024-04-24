@@ -1,14 +1,27 @@
 using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
 
 namespace API.Configurations
 {
     public class FirebaseConfiguration
     {
         private FirebaseApp? _firebaseApp = null;
+        private StorageClient? _storageClient;
+        private FirebaseConfiguration firebaseConfiguration;
         private static readonly object _lock = new object();
-        private FirebaseApp FirebaseApp {get {
+        private static FirebaseConfiguration _firebaseConfiguration;
+        private FirebaseConfiguration() {}
+        public static FirebaseConfiguration Instance {get {
+            if (_firebaseConfiguration == null) {
+                lock (_lock) {
+                    _firebaseConfiguration = new FirebaseConfiguration();
+                }
+            }
+            return _firebaseConfiguration;
+        }}
+        public FirebaseApp FirebaseApp {get {
             if (_firebaseApp == null) {
                 // TODO: how should I call an async method in getter setter, should I use signleton for this?
                 new Task(async () =>
@@ -19,9 +32,16 @@ namespace API.Configurations
             }
             return _firebaseApp;
         }}
+        public StorageClient StorageClient {get {
+            if (_storageClient == null) {
+                new Thread(async () => {
+                    _storageClient = await GetStorageClientAsync();
+                }).Start();
+            }
+            return _storageClient;
+        }}
         private static async Task<GoogleCredential> GetGoogleCredentialsAsync()
         {
-            // FirebaseAuth
             try
             {
                 CancellationTokenSource source = new CancellationTokenSource();
@@ -50,7 +70,15 @@ namespace API.Configurations
                 Console.WriteLine(e.StackTrace);
                 return null;
             }
+        }
 
+        private static async Task<StorageClient?> GetStorageClientAsync() {
+            try {
+                return await StorageClient.CreateAsync(await GetGoogleCredentialsAsync());
+            } catch (Exception e) {
+                Console.WriteLine(e.StackTrace);
+                return null;
+            }
         }
     }
 }

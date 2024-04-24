@@ -16,6 +16,7 @@ namespace API.Utils {
             // services
             services.AddScoped<UserService, UserServiceImplementation>();
             services.AddScoped<ArticleService, ArticleServiceImplementation>();
+            services.AddScoped<FirebaseStorageService, FirebaseStorageServiceImplementation>();
             // controllers
             services.AddControllers();
             // mapper
