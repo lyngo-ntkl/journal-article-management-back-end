@@ -12,8 +12,10 @@ namespace API.Utils {
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
             services.AddScoped<UserRepository, UserRepositoryImplementation>();
+            services.AddScoped<ArticleRepository, ArticleRepositoryImplementation>();
             // services
             services.AddScoped<UserService, UserServiceImplementation>();
+            services.AddScoped<ArticleService, ArticleServiceImplementation>();
             // controllers
             services.AddControllers();
             // mapper

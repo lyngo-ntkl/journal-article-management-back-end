@@ -18,6 +18,7 @@ namespace API.Dto.Requests {
     }
 
     public class ArticleCreationRequestText: ArticleCreationRequest {
+        //TODO: length validation
         [Required]
         public string? Abstract {get; set;}
         [Required]
@@ -26,6 +27,6 @@ namespace API.Dto.Requests {
         public string? Method {get; set;}
         [Required]
         public string? Results {get; set;}
-        // public virtual ICollection<Reference> References {get; set;} = null!;
+        public ICollection<int>? ReferenceIds {get; set;}
     }
 }
