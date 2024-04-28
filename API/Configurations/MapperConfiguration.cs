@@ -10,10 +10,13 @@ namespace API.Configurations {
         {
             // user-related
             CreateMap<User, UserResponse>();
+
             //TODO: converter for topic ids, referencesId
             // article-related
             CreateMap<ArticleCreationRequest, Article>()
                 .ForMember(article => article.Authors, mappingOptions => mappingOptions.ConvertUsing(authorIdsToAuthorsConverter, src => src.AuthorIds))
+                .ForAllMembers(configOptions => configOptions.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Article, ArticleResponse>()
                 .ForAllMembers(configOptions => configOptions.Condition((src, dest, srcMember) => srcMember != null));
         }
     }

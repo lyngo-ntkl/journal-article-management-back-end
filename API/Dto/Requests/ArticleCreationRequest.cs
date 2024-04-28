@@ -14,7 +14,7 @@ namespace API.Dto.Requests {
 
     public class ArticleCreationRequestFile: ArticleCreationRequest {
         [Required]
-        public string? FilePath {get; set;}
+        public MultipartContent? File {get; set;}
     }
 
     public class ArticleCreationRequestText: ArticleCreationRequest {

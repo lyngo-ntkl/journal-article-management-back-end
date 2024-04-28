@@ -1,10 +1,6 @@
-using System.ComponentModel.DataAnnotations.Schema;
+using API.Enums;
 
 namespace API.Entities {
-    public enum ArticleStatus {
-        DRAFTED, SUBMITTED, REVIEWING, REJECTED, MINOR_REVISION, MAJOR_REVISION, APPROVED
-    }
-
     public class Article: BaseEntity {
         public required string Abstract {get; set;}
         public required string Introduction {get; set;}

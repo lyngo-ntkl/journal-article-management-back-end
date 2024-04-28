@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using API.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace API.Repositories {
     public interface GenericRepository<T> where T: BaseEntity {
@@ -10,8 +11,8 @@ namespace API.Repositories {
         List<T> GetAll();
         Task<List<T>> GetAllAsync();
         Task<T?> GetAsync(int id);
-        void Insert(T entity);
-        Task InsertAsync(T entity);
+        T Insert(T entity);
+        Task<T> InsertAsync(T entity);
         void Update(T entity);
     }
 
@@ -59,14 +60,15 @@ namespace API.Repositories {
             return await this._dbSet.FindAsync(id);
         }
 
-        public void Insert(T entity)
+        public T Insert(T entity)
         {
-            this._dbSet.Add(entity);
+            return this._dbSet.Add(entity).Entity;
         }
 
-        public async Task InsertAsync(T entity)
+        public async Task<T> InsertAsync(T entity)
         {
-            await this._dbSet.AddAsync(entity);
+            EntityEntry<T> entryEntity = await this._dbSet.AddAsync(entity);
+            return entryEntity.Entity;
         }
 
         public void Update(T entity)
