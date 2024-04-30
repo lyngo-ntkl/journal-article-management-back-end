@@ -7,6 +7,7 @@ namespace API.Repositories {
         UserRepository UserRepository {get;}
         ArticleRepository ArticleRepository {get;}
         TopicRepository TopicRepository {get;}
+        ReferenceRepository ReferenceRepository {get;}
     }
 
     public class UnitOfWorkImplementation : UnitOfWork
@@ -15,14 +16,16 @@ namespace API.Repositories {
         private readonly UserRepository _userRepository;
         private readonly ArticleRepository _articleRepository;
         private readonly TopicRepository _topicRepository;
+        private readonly ReferenceRepository _referenceRepository;
 
-        public UnitOfWorkImplementation(ApplicationDbContext dbContext, UserRepository userRepository, 
-            ArticleRepository articleRepository, TopicRepository topicRepository)
+        public UnitOfWorkImplementation(ApplicationDbContext dbContext, UserRepository userRepository,
+            ArticleRepository articleRepository, TopicRepository topicRepository, ReferenceRepository referenceRepository)
         {
             this._dbContext = dbContext;
             this._userRepository = userRepository;
             this._articleRepository = articleRepository;
             this._topicRepository = topicRepository;
+            this._referenceRepository = referenceRepository;
         }
 
         public UserRepository UserRepository => _userRepository;
@@ -30,6 +33,8 @@ namespace API.Repositories {
         public ArticleRepository ArticleRepository => _articleRepository;
 
         public TopicRepository TopicRepository => _topicRepository;
+
+        public ReferenceRepository ReferenceRepository => _referenceRepository;
 
         public int Save()
         {

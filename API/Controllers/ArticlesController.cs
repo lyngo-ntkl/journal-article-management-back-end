@@ -24,5 +24,10 @@ namespace API.Controllers {
         public async Task<ArticleResponse?> GetArticle(int id) {
             return await _articleService.GetArticle(id);
         }
+
+        [HttpPut("/{id}")]
+        public async Task<ArticleResponse?> UpdateArticle(int id, ArticleUpdateRequest request) {
+            return await _articleService.UpdateArticle(id, request);
+        }
     }
 }

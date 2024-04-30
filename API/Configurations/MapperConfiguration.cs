@@ -22,6 +22,7 @@ namespace API.Configurations {
             CreateMap<ArticleCreationRequestText, Article>()
                 .ForMember(article => article.Authors, mappingOptions => mappingOptions.ConvertUsing<AuthorIdsToAuthorsConverter, ICollection<int>?>(src => src.AuthorIds))
                 .ForMember(article => article.Topics, mappingOptions => mappingOptions.ConvertUsing<TopicIdsToTopicsConverter, ICollection<int>?>(src => src.TopicIds))
+                .ForMember(article => article.References, options => options.ConvertUsing<ReferenceIdsToReferencesConverter, ICollection<int>?>(src => src.ReferenceIds))
                 .ForMember(article => article.Status, config => config.MapFrom(src => ArticleStatus.DRAFTED))
                 .ForAllMembers(configOptions => configOptions.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<ArticleCreationRequestFile, Article>()
