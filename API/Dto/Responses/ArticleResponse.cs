@@ -2,6 +2,7 @@ using API.Enums;
 
 namespace API.Dto.Responses {
     public class ArticleResponse {
+        public int Id {get; set;}
         public string? Abstract {get; set;}
         public string? Introduction {get; set;}
         public string? Method {get; set;}

@@ -1,4 +1,5 @@
 using API.Dto.Requests;
+using API.Dto.Responses;
 using API.Services;
 using API.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +16,13 @@ namespace API.Controllers {
         }
 
         [HttpPost("")]
-        public async void CreateNewArticle(ArticleCreationRequest request) {
-            await _articleService.CreateNewArticle(request);
+        public async Task<ArticleResponse?> CreateNewArticle(ArticleCreationRequest request) {
+            return await _articleService.CreateNewArticle(request);
+        }
+
+        [HttpGet("/{id}")]
+        public async Task<ArticleResponse?> GetArticle(int id) {
+            return await _articleService.GetArticle(id);
         }
     }
 }

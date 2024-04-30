@@ -10,10 +10,10 @@ namespace API.Entities {
         public string? DoiNumber {get; set;}
         public string? Discussion {get; set;}
         public string? FilePath {get; set;}
-        public virtual ICollection<User> Authors {get; set;} = null!;
-        public virtual ICollection<Topic> Topics {get; set;} = null!;
-        public virtual ICollection<Reference> References {get; set;} = null!;
-        public virtual ICollection<Reference> CitationBy {get; set;} = null!;
+        public virtual ICollection<User>? Authors {get; set;}
+        public virtual ICollection<Topic>? Topics {get; set;}
+        public virtual ICollection<Reference>? References {get; set;}
+        public virtual ICollection<Reference>? CitationBy {get; set;}
     }
 
     public class Reference: BaseEntity {

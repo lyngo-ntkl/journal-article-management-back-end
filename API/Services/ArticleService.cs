@@ -7,7 +7,8 @@ using AutoMapper;
 namespace API.Services {
     public interface ArticleService {
         Task<ArticleResponse?> CreateNewArticle(ArticleCreationRequest request);
-        Task<ArticleResponse?> UpdateArticle();
+        Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request);
+        Task<ArticleResponse?> GetArticle(int articleId);
     }
     public class ArticleServiceImplementation : ArticleService
     {
@@ -33,15 +34,25 @@ namespace API.Services {
             }
         }
 
-        public Task<ArticleResponse?> UpdateArticle()
+        public async Task<ArticleResponse?> GetArticle(int articleId)
+        {
+            return _mapper.Map<ArticleResponse?>(await _unitOfWork.ArticleRepository.GetAsync(articleId));
+        }
+
+        public async Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request)
         {
             try {
-
+                Article? article = await _unitOfWork.ArticleRepository.GetAsync(articleId);
+                if (article == null) {
+                    // TODO: handle using Global handler
+                    throw new Exception("Article not found");
+                }
+                article = _unitOfWork.ArticleRepository.Update(_mapper.Map(request, article));
+                return _mapper.Map<ArticleResponse>(article);
             } catch (Exception e) {
                 Console.WriteLine(e.StackTrace);
                 return null;
             }
-            throw new NotImplementedException();
         }
 
         private async Task<Article> CreateNewArticleByFile(ArticleCreationRequest request) {
@@ -50,7 +61,10 @@ namespace API.Services {
         }
 
         private async Task<Article> CreateNewArticleByText(ArticleCreationRequest request) {
-            return await _unitOfWork.ArticleRepository.InsertAsync(_mapper.Map<Article>(request));
+            Article article = _mapper.Map<Article>(request);
+            article = await _unitOfWork.ArticleRepository.InsertAsync(article);
+            await _unitOfWork.SaveAsync();
+            return article;
         }
     }
 }

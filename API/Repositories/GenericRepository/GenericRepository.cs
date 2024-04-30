@@ -13,7 +13,7 @@ namespace API.Repositories {
         Task<T?> GetAsync(int id);
         T Insert(T entity);
         Task<T> InsertAsync(T entity);
-        void Update(T entity);
+        T Update(T entity);
     }
 
     public class GenericRepositoryImplementation<T> : GenericRepository<T> where T : BaseEntity
@@ -71,9 +71,10 @@ namespace API.Repositories {
             return entryEntity.Entity;
         }
 
-        public void Update(T entity)
+        public T Update(T entity)
         {
-            this._dbSet.Update(entity);
+            EntityEntry<T> updatedEntity = this._dbSet.Update(entity);
+            return updatedEntity.Entity;
         }
     }
 }

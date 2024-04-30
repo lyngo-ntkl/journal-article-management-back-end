@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace API.Entities {
     public enum Role {
         AUTHOR,
@@ -6,6 +8,7 @@ namespace API.Entities {
     }
 
     public class User: BaseEntity {
+        // TODO: Unique annotation
         public required string Email {get; set;}
         // TODO: may change when add hash for password
         public string? Password {get; set;}

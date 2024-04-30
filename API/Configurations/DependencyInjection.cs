@@ -13,11 +13,17 @@ namespace API.Utils {
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
             services.AddScoped<UserRepository, UserRepositoryImplementation>();
             services.AddScoped<ArticleRepository, ArticleRepositoryImplementation>();
+            services.AddScoped<TopicRepository, TopicRepositoryImplementation>();
+            services.AddScoped<ReferenceRepository, ReferenceRepositoryImplementation>();
             // services
             services.AddScoped<UserService, UserServiceImplementation>();
             services.AddScoped<ArticleService, ArticleServiceImplementation>();
             // controllers
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.WriteIndented = true;
+                });
             // mapper
             services.AddAutoMapper(typeof(MapperConfiguration));
         }
