@@ -4,17 +4,18 @@ using System.Text.Json.Serialization;
 namespace API.Dto.Requests {
 
     [JsonDerivedType(typeof(ArticleCreationRequestFile), typeDiscriminator: "file")]
-    [JsonDerivedType(typeof(ArticleCreationRequestText), typeDiscriminator:"text")]
+    [JsonDerivedType(typeof(ArticleCreationRequestText), typeDiscriminator: "text")]
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
     public class ArticleCreationRequest {
         [Required]
-        public ICollection<int>? AuthorIds;
+        public ICollection<int>? AuthorIds {get; set;}
         [Required]
-        public ICollection<int>? TopicIds;
+        public ICollection<int>? TopicIds {get; set;}
     }
 
     public class ArticleCreationRequestFile: ArticleCreationRequest {
         [Required]
-        public string? FilePath {get; set;}
+        public IFormFile? File {get; set;}
     }
 
     public class ArticleCreationRequestText: ArticleCreationRequest {

@@ -4,7 +4,7 @@ using API.Repositories;
 using AutoMapper;
 
 namespace API.Converter {
-    public class AuthorIdsToAuthorsConverter : IValueConverter<ICollection<int>?, ICollection<User>>
+    public class AuthorIdsToAuthorsConverter : IValueConverter<ICollection<int>?, ICollection<User>?>
     {
         private readonly UnitOfWork _unitOfWork;
 
@@ -13,10 +13,10 @@ namespace API.Converter {
             _unitOfWork = unitOfWork;
         }
 
-        public ICollection<User> Convert(ICollection<int>? sourceMember, ResolutionContext context)
+        public ICollection<User>? Convert(ICollection<int>? sourceMember, ResolutionContext context)
         {
             if (sourceMember == null) {
-                return new Collection<User>();
+                return null;
             }
             return _unitOfWork.UserRepository.GetAll().FindAll(user => sourceMember.Contains(user.Id));
         }

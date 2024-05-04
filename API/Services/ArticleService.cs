@@ -1,12 +1,14 @@
 using API.Dto.Requests;
+using API.Dto.Responses;
 using API.Entities;
 using API.Repositories;
 using AutoMapper;
 
 namespace API.Services {
     public interface ArticleService {
-        Task CreateNewArticle(ArticleCreationRequest request);
-        Task UpdateArticle();
+        Task<ArticleResponse?> CreateNewArticle(ArticleCreationRequest request);
+        Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request);
+        Task<ArticleResponse?> GetArticle(int articleId);
     }
     public class ArticleServiceImplementation : ArticleService
     {
@@ -16,32 +18,53 @@ namespace API.Services {
             this._unitOfWork = unitOfWork;
             this._mapper = mapper;
         }
-        public async Task CreateNewArticle(ArticleCreationRequest request)
+        public async Task<ArticleResponse?> CreateNewArticle(ArticleCreationRequest request)
         {
             try {
+                Article article;
                 if (request.GetType() == typeof(ArticleCreationRequestFile)) {
-                    await CreateNewArticleByFile(request);
+                    article = await CreateNewArticleByFile(request);
                 } else {
-                    await CreateNewArticleByText(request);
+                    article = await CreateNewArticleByText(request);
                 }
+                return _mapper.Map<ArticleResponse>(article);
             } catch (Exception e) {
                 Console.WriteLine(e.StackTrace);
+                return null;
             }
         }
 
-        public Task UpdateArticle()
+        public async Task<ArticleResponse?> GetArticle(int articleId)
         {
-            throw new NotImplementedException();
+            return _mapper.Map<ArticleResponse?>(await _unitOfWork.ArticleRepository.GetAsync(articleId));
         }
 
-        private async Task CreateNewArticleByFile(ArticleCreationRequest request) {
+        public async Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request)
+        {
+            try {
+                Article? article = await _unitOfWork.ArticleRepository.GetAsync(articleId);
+                if (article == null) {
+                    // TODO: handle using Global handler
+                    throw new Exception("Article not found");
+                }
+                article = _unitOfWork.ArticleRepository.Update(_mapper.Map(request, article));
+                return _mapper.Map<ArticleResponse>(article);
+            } catch (Exception e) {
+                Console.WriteLine(e.StackTrace);
+                return null;
+            }
+        }
+
+        private async Task<Article> CreateNewArticleByFile(ArticleCreationRequest request) {
             //TODO: file convertion & file upload
-            await _unitOfWork.ArticleRepository.InsertAsync(_mapper.Map<Article>(request));
-            throw new NotImplementedException();
+            return await _unitOfWork.ArticleRepository.InsertAsync(_mapper.Map<Article>(request));
         }
 
-        private async Task CreateNewArticleByText(ArticleCreationRequest request) {
-            await _unitOfWork.ArticleRepository.InsertAsync(_mapper.Map<Article>(request));
+        private async Task<Article> CreateNewArticleByText(ArticleCreationRequest request) {
+            Article article = _mapper.Map<Article>(request);
+            article = await _unitOfWork.ArticleRepository.InsertAsync(article);
+            await _unitOfWork.SaveAsync();
+            return article;
         }
     }
 }
