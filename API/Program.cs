@@ -12,11 +12,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
-    // app.UseSwaggerUI(config => {
-    //    config.SwaggerEndpoint("/index.html", "Journal article management");
-    //    config.RoutePrefix = "/swagger/v1/swagger.json";
-    // });
+    app.UseSwaggerUI(config => {
+        config.RoutePrefix = string.Empty;
+        config.SwaggerEndpoint("/swagger/v1/swagger.json", "Journal Article API");
+    });
 }
 
 app.UseHttpsRedirection();

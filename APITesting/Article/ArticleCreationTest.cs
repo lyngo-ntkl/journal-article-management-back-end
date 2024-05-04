@@ -1,11 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Net.Http.Json;
 using API.Dto.Requests;
+using API.Utils;
+using Constant;
 
 namespace UnitTesting.Article {
     // [TestFixture]
     public class ArticleCreationTest {
-        private const string BaseUrl = "https://localhost:7258/v1/api/articles";
+        // private const string BaseUrl = "https://localhost:7258";
+        private const string BaseUrl = "/articles";
 
         [SetUp]
         public void SetUp() {
@@ -28,10 +31,23 @@ namespace UnitTesting.Article {
                 TopicIds = new Collection<int> {1}
             };
             JsonContent body = JsonContent.Create(request);
-            var response = await client.PostAsync(BaseUrl, body);
+            var response = await client.PostAsync(Route.Host + Route.BaseUrl + BaseUrl, body);
             var actual = response.IsSuccessStatusCode;
             var expect = true;
             Assert.That(actual, Is.EqualTo(expect));
+        }
+
+        [Test]
+        public async Task TestUploadFileToFireBaseCloudStorage() {
+            HttpClient client = new HttpClient();
+            var fileStream = File.OpenRead("../../../testArticle.txt");
+            MultipartFormDataContent body = new MultipartFormDataContent() {
+                new StreamContent(fileStream)
+            };
+            var response = await client.PostAsync(Route.Host + Route.BaseUrl + "/test/firebase-file-uploading", body);
+            var url = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(url);
+            Assert.IsNotEmpty(url);
         }
         
         // [Test]
