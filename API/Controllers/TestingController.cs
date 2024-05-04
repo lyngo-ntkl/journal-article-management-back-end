@@ -14,8 +14,8 @@ namespace API.Controllers {
         }
 
         [HttpPost("/firebase-file-uploading")]
-        public void UploadFile(IFormFile file) {
-            _firebaseStorageService.UploadFileAsync(file.OpenReadStream(), file.ContentType, file.FileName);
+        public async Task<string> UploadFile(IFormFile file) {
+            return await _firebaseStorageService.UploadFileAsync(file.OpenReadStream(), file.ContentType, file.FileName);
         }
     }
 }

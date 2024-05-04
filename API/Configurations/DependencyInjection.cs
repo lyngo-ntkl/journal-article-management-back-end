@@ -21,6 +21,7 @@ namespace API.Utils {
             services.AddControllers();
             // mapper
             services.AddAutoMapper(typeof(MapperConfiguration));
+            services.AddSingleton<FirebaseConfiguration>();
         }
     }
 }

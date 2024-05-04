@@ -1,83 +1,55 @@
-using FirebaseAdmin;
-using FirebaseAdmin.Auth;
-using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Storage.V1;
+// using FirebaseAdmin;
+// using FirebaseAdmin.Auth;
+// using Google.Cloud.Storage.V1;
+
+using Firebase.Auth;
+using Firebase.Auth.Providers;
+using Firebase.Storage;
 
 namespace API.Configurations
 {
-    public class FirebaseConfiguration
-    {
-        private FirebaseApp? _firebaseApp = null;
-        private StorageClient? _storageClient;
-        private FirebaseConfiguration firebaseConfiguration;
-        private static readonly object _lock = new object();
-        private static FirebaseConfiguration _firebaseConfiguration;
-        private FirebaseConfiguration() {}
-        public static FirebaseConfiguration Instance {get {
-            if (_firebaseConfiguration == null) {
-                lock (_lock) {
-                    _firebaseConfiguration = new FirebaseConfiguration();
+    public class FirebaseConfiguration {
+        private readonly IConfiguration _configuration;
+        private FirebaseStorage? _firebaseStorage;
+        private UserCredential? _credential;
+        private FirebaseAuthConfig? _authConfig;
+
+        public FirebaseConfiguration(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        private  FirebaseAuthConfig GetFirebaseAuthConfig() {
+            if (_authConfig == null) {
+                _authConfig = new FirebaseAuthConfig {
+                    ApiKey = _configuration["firebase:auth:apiKey"],
+                    AuthDomain = _configuration["firebase:auth:authDomain"],
+                    Providers = new FirebaseAuthProvider[] {
+                        new EmailProvider()
+                    }
+                };
+            }
+            return _authConfig;
+        }
+
+        private  async Task<UserCredential> GetUserCredential() {
+            if (_credential == null) {
+                FirebaseAuthClient client = new FirebaseAuthClient(GetFirebaseAuthConfig());
+                _credential = await client.SignInWithEmailAndPasswordAsync(_configuration["firebase:auth:email"], _configuration["firebase:auth:password"]);
+            }
+            return _credential;
+        }
+
+        public  FirebaseStorage FirebaseStorage { get {
+                if (_firebaseStorage == null) {
+                    _firebaseStorage = new FirebaseStorage(_configuration["firebase:cloudStorage:storageBucket"], new FirebaseStorageOptions {
+                        AuthTokenAsyncFactory = async () => {
+                            var credential = await GetUserCredential();
+                            return await credential.User.GetIdTokenAsync();
+                        }
+                    });
                 }
-            }
-            return _firebaseConfiguration;
-        }}
-        public FirebaseApp FirebaseApp {get {
-            if (_firebaseApp == null) {
-                // TODO: how should I call an async method in getter setter, should I use signleton for this?
-                new Task(async () =>
-                {
-                    _firebaseApp = await GetFirebaseAppAsync();
-                }).Start();
-                
-            }
-            return _firebaseApp;
-        }}
-        public StorageClient StorageClient {get {
-            if (_storageClient == null) {
-                new Thread(async () => {
-                    _storageClient = await GetStorageClientAsync();
-                }).Start();
-            }
-            return _storageClient;
-        }}
-        private static async Task<GoogleCredential> GetGoogleCredentialsAsync()
-        {
-            try
-            {
-                CancellationTokenSource source = new CancellationTokenSource();
-                CancellationToken cancellationToken = source.Token;
-                // TODO: add service_account file & add this file to git ignore
-                return await GoogleCredential.FromFileAsync("", cancellationToken);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.StackTrace);
-                return GoogleCredential.GetApplicationDefault();
-            }
-        }
-
-        private static async Task<FirebaseApp?> GetFirebaseAppAsync()
-        {
-            try
-            {
-                return FirebaseApp.Create(new AppOptions
-                {
-                    Credential = await GetGoogleCredentialsAsync()
-                });
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.StackTrace);
-                return null;
-            }
-        }
-
-        private static async Task<StorageClient?> GetStorageClientAsync() {
-            try {
-                return await StorageClient.CreateAsync(await GetGoogleCredentialsAsync());
-            } catch (Exception e) {
-                Console.WriteLine(e.StackTrace);
-                return null;
+                return _firebaseStorage;
             }
         }
     }
