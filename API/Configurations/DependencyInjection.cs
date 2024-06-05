@@ -1,9 +1,12 @@
 using API.Configurations;
+using API.CronJob;
 using API.Entities;
 using API.Repositories;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Quartz;
+using Quartz.Impl;
 
 namespace API.Utils {
     public static class DependencyInjection {
@@ -36,6 +39,7 @@ namespace API.Utils {
                     Version = "v1"
                 });
             });
+            services.AddScoped<PermanentDeletionJob>();
         }
     }
 }

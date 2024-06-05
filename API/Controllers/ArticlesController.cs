@@ -34,5 +34,10 @@ namespace API.Controllers {
         public async Task<ArticleResponse> DeleteDraftArticle(int id) {
             return await _articleService.DeleteDraftArticle(id);
         }
+
+        [HttpDelete("/drafts/{id}/permanence")]
+        public async Task<ArticleResponse> DeleteDraftArticlePermanent(int id) {
+            return await _articleService.DeleteDraftArticlePermanent(id);
+        }
     }
 }
