@@ -1,6 +1,7 @@
 using API.Dto.Requests;
 using API.Dto.Responses;
 using API.Entities;
+using API.Enums;
 using API.Repositories;
 using AutoMapper;
 
@@ -9,6 +10,7 @@ namespace API.Services {
         Task<ArticleResponse?> CreateNewArticle(ArticleCreationRequest request);
         Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request);
         Task<ArticleResponse?> GetArticle(int articleId);
+        Task<ArticleResponse> DeleteDraftArticle(int articleId);
     }
     public class ArticleServiceImplementation : ArticleService
     {
@@ -34,9 +36,30 @@ namespace API.Services {
             }
         }
 
+        public async Task<ArticleResponse> DeleteDraftArticle(int articleId)
+        {
+            // TODO: soft delete first, hard delete after 30 days of soft delete
+            var article = await _unitOfWork.ArticleRepository.GetAsync(articleId);
+            if (article == null) {
+                throw new Exception("Article not found");
+            }
+            if (article.Status != ArticleStatus.DRAFTED) {
+                throw new Exception("Only draft article can be delete");
+            }
+            article.IsDeleted = true;
+            article.DeletedDate = DateTime.UtcNow;
+            article = _unitOfWork.ArticleRepository.Update(article);
+            await _unitOfWork.SaveAsync();
+            return _mapper.Map<ArticleResponse>(article);
+        }
+
         public async Task<ArticleResponse?> GetArticle(int articleId)
         {
-            return _mapper.Map<ArticleResponse?>(await _unitOfWork.ArticleRepository.GetAsync(articleId));
+            var article = await _unitOfWork.ArticleRepository.GetAsync(articleId);
+            if (article == null) {
+                throw new Exception("Article not found");
+            }
+            return _mapper.Map<ArticleResponse?>(article);
         }
 
         public async Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request)

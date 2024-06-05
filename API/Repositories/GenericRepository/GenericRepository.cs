@@ -74,7 +74,10 @@ namespace API.Repositories {
         public T Update(T entity)
         {
             EntityEntry<T> updatedEntity = this._dbSet.Update(entity);
-            return updatedEntity.Entity;
+            // _dbSet.Entry(entity).State = EntityState.Modified;
+            //_dbSet.Attach(entity);
+            //_dbContext.Entry(entity).State = EntityState.Modified;
+            return entity;
         }
     }
 }
