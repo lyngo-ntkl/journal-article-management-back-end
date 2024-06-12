@@ -13,7 +13,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(config => {
-        config.RoutePrefix = string.Empty;
+        // config.RoutePrefix = string.Empty;
         config.SwaggerEndpoint("/swagger/v1/swagger.json", "Journal Article API");
     });
 }
