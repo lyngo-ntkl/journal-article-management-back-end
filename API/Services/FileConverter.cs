@@ -1,16 +1,23 @@
+using System.Text;
+using iText.IO.Source;
+using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas.Parser;
+using iText.Kernel.Pdf.Canvas.Parser.Listener;
+using iText.StyledXmlParser.Jsoup.Nodes;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace API.Services {
     public interface FileConverter {
         Task<string> ConvertFileToText(IFormFile? file);
-        Task<string> ConvertPdfToText(Stream fileStream);
+        string ConvertPdfToText(Stream fileStream);
         Task<string> ConvertWordToText(Stream fileStream);
         Task<string> GetText(Stream fileStream);
     }
 
     public class FileConverterImplementation : FileConverter
     {
-        public Task<string> ConvertFileToText(IFormFile? file)
+        public async Task<string> ConvertFileToText(IFormFile? file)
         {
             if (file == null) {
                 throw new Exception("File not exist");
@@ -22,18 +29,26 @@ namespace API.Services {
                     return ConvertPdfToText(fileStream);
                 case ".doc":
                 case ".docx":
-                    return ConvertWordToText(fileStream);
+                    return await ConvertWordToText(fileStream);
                 case ".txt":
-                    return GetText(fileStream);
+                    return await GetText(fileStream);
                 default:
                     throw new Exception("Unsupport type");
             }
         }
 
-        public Task<string> ConvertPdfToText(Stream fileStream)
+        public string ConvertPdfToText(Stream fileStream)
         {
-            
-            throw new NotImplementedException();
+            var pdfReader = new PdfReader(fileStream);
+            var pdfDocument = new PdfDocument(pdfReader);
+            var pages = pdfDocument.GetNumberOfPages();
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int page = 1; page < pages; page++) {
+                // ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
+                stringBuilder.Append(PdfTextExtractor.GetTextFromPage(pdfDocument.GetPage(page)));
+                stringBuilder.Append("\n");
+            }
+            return stringBuilder.ToString();
         }
 
         public Task<string> ConvertWordToText(Stream fileStream)
