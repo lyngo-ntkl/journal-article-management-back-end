@@ -20,9 +20,11 @@ namespace API.Services {
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public ArticleServiceImplementation(UnitOfWork unitOfWork, IMapper mapper) {
+        private readonly FileConverter _fileConverter;
+        public ArticleServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, FileConverter fileConverter) {
             this._unitOfWork = unitOfWork;
             this._mapper = mapper;
+            this._fileConverter = fileConverter;
         }
         public async Task<ArticleResponse?> CreateNewArticle(ArticleCreationRequest request)
         {
@@ -119,6 +121,9 @@ namespace API.Services {
 
         private async Task<Article> CreateNewArticleByFile(ArticleCreationRequest request) {
             //TODO: file convertion & file upload
+            var fileRequest = (ArticleCreationRequestFile) request;
+            var file = fileRequest.File;
+            var convertedText = _fileConverter.ConvertFileToText(file);
             return await _unitOfWork.ArticleRepository.InsertAsync(_mapper.Map<Article>(request));
         }
 
