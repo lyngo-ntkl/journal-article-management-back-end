@@ -1,17 +1,13 @@
 using System.Text;
-using iText.IO.Source;
-using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
-using iText.Kernel.Pdf.Canvas.Parser.Listener;
-using iText.StyledXmlParser.Jsoup.Nodes;
-using Microsoft.AspNetCore.StaticFiles;
+using Spire.Doc;
 
 namespace API.Services {
     public interface FileConverter {
         Task<string> ConvertFileToText(IFormFile? file);
         string ConvertPdfToText(Stream fileStream);
-        Task<string> ConvertWordToText(Stream fileStream);
+        Task<string> ConvertWordToText(Stream fileStream, FileFormat fileFormat);
         Task<string> GetText(Stream fileStream);
     }
 
@@ -28,8 +24,9 @@ namespace API.Services {
                 case ".pdf":
                     return ConvertPdfToText(fileStream);
                 case ".doc":
+                    return await ConvertWordToText(fileStream, FileFormat.Doc);
                 case ".docx":
-                    return await ConvertWordToText(fileStream);
+                    return await ConvertWordToText(fileStream, FileFormat.Docx);
                 case ".txt":
                     return await GetText(fileStream);
                 default:
@@ -44,16 +41,17 @@ namespace API.Services {
             var pages = pdfDocument.GetNumberOfPages();
             StringBuilder stringBuilder = new StringBuilder();
             for (int page = 1; page < pages; page++) {
-                // ITextExtractionStrategy strategy = new SimpleTextExtractionStrategy();
                 stringBuilder.Append(PdfTextExtractor.GetTextFromPage(pdfDocument.GetPage(page)));
                 stringBuilder.Append("\n");
             }
             return stringBuilder.ToString();
         }
 
-        public Task<string> ConvertWordToText(Stream fileStream)
+        public async Task<string> ConvertWordToText(Stream fileStream, FileFormat fileFormat)
         {
-            throw new NotImplementedException();
+            Document document = new Document();
+            document.LoadFromStream(fileStream, fileFormat);
+            return document.GetText();
         }
 
         public async Task<string> GetText(Stream fileStream)
