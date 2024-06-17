@@ -39,5 +39,11 @@ namespace API.Controllers {
         public async Task<ArticleResponse> DeleteDraftArticlePermanent(int id) {
             return await _articleService.DeleteDraftArticlePermanent(id);
         }
+
+        [HttpPut("/submission/{id}")]
+        public async Task<ArticleResponse> SubmitArticle(int id) {
+            // TODO: Plagiarism checker
+            return await _articleService.SubmitArticle(id);
+        }
     }
 }

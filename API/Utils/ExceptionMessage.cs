@@ -5,5 +5,7 @@ namespace API.Utils {
         public const string SoftDeletion = "Need to soft delete before delete permanently";
         public const string FileNotExist = "File not exist";
         public const string UnsupportedFileType = "Unsupported file type. The system currently supports .pdf, .doc, .docx, .txt";
+        public const string UnableToSubmit = "Only draft or revision article can be submitted";
+        public const string UnqualifiedSubmission = "The submission is lack of information";
     }
 }

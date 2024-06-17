@@ -16,6 +16,7 @@ namespace API.Services {
         Task<ArticleResponse?> GetArticle(int articleId);
         Task<ArticleResponse> DeleteDraftArticle(int articleId);
         Task<ArticleResponse> DeleteDraftArticlePermanent(int articleId);
+        Task<ArticleResponse> SubmitArticle(int articleId);
     }
     public class ArticleServiceImplementation : ArticleService
     {
@@ -129,6 +130,33 @@ namespace API.Services {
             article = await _unitOfWork.ArticleRepository.InsertAsync(article);
             await _unitOfWork.SaveAsync();
             return article;
+        }
+
+        public async Task<ArticleResponse> SubmitArticle(int articleId)
+        {
+            var article = await GetArticleEntity(articleId);
+
+            if (article.Status != ArticleStatus.DRAFTED &&
+                article.Status != ArticleStatus.MINOR_REVISION &&
+                article.Status != ArticleStatus.MAJOR_REVISION) {
+                throw new Exception(ExceptionMessage.UnableToSubmit);
+            }
+
+            if (string.IsNullOrWhiteSpace(article.Title) ||
+                string.IsNullOrWhiteSpace(article.Abstract) ||
+                string.IsNullOrWhiteSpace(article.Introduction) ||
+                string.IsNullOrWhiteSpace(article.Method) ||
+                string.IsNullOrWhiteSpace(article.Results) ||
+                string.IsNullOrWhiteSpace(article.Conclusion) ||
+                article.Authors == null || article.Authors.Count() == 0 ||
+                article.References == null || article.References.Count() == 0) {
+                throw new Exception(ExceptionMessage.UnqualifiedSubmission);
+            }
+
+            article.Status = ArticleStatus.SUBMITTED;
+            article = _unitOfWork.ArticleRepository.Update(article);
+            await _unitOfWork.SaveAsync();
+            return _mapper.Map<ArticleResponse>(article);
         }
     }
 }
