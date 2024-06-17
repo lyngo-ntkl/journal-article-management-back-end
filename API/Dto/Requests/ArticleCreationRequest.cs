@@ -7,6 +7,7 @@ namespace API.Dto.Requests {
     [JsonDerivedType(typeof(ArticleCreationRequestText), typeDiscriminator: "text")]
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
     public class ArticleCreationRequest {
+        // TODO: Change validation: field in draft article could be null
         [Required]
         public ICollection<int>? AuthorIds {get; set;}
         [Required]
@@ -21,6 +22,8 @@ namespace API.Dto.Requests {
     public class ArticleCreationRequestText: ArticleCreationRequest {
         //TODO: length validation
         [Required]
+        public string? Title {get; set;}
+        [Required]
         public string? Abstract {get; set;}
         [Required]
         public string? Introduction {get; set;}
@@ -28,6 +31,8 @@ namespace API.Dto.Requests {
         public string? Method {get; set;}
         [Required]
         public string? Results {get; set;}
+        [Required]
+        public string? Conclusion {get; set;}
         public ICollection<int>? ReferenceIds {get; set;}
     }
 }

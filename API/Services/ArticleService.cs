@@ -4,6 +4,7 @@ using API.Dto.Responses;
 using API.Entities;
 using API.Enums;
 using API.Repositories;
+using API.Utils;
 using AutoMapper;
 using Quartz;
 using Quartz.Impl;
@@ -44,12 +45,9 @@ namespace API.Services {
 
         public async Task<ArticleResponse> DeleteDraftArticle(int articleId)
         {
-            var article = await _unitOfWork.ArticleRepository.GetAsync(articleId);
-            if (article == null) {
-                throw new Exception("Article not found");
-            }
+            var article = await GetArticleEntity(articleId);
             if (article.Status != ArticleStatus.DRAFTED) {
-                throw new Exception("Only draft article can be delete");
+                throw new Exception(ExceptionMessage.DraftArticleDeletionAllowance);
             }
             // if (article.IsDeleted) {
             //     throw new Exception("Can not delete the deleted draft article");
@@ -77,15 +75,12 @@ namespace API.Services {
 
         public async Task<ArticleResponse> DeleteDraftArticlePermanent(int articleId)
         {
-            var article = await _unitOfWork.ArticleRepository.GetAsync(articleId);
-            if (article == null) {
-                throw new Exception("Article not found");
-            }
+            var article = await GetArticleEntity(articleId);
             if (article.Status != ArticleStatus.DRAFTED) {
-                throw new Exception("Only draft article can be delete");
+                throw new Exception(ExceptionMessage.DraftArticleDeletionAllowance);
             }
             if (! article.IsDeleted) {
-                throw new Exception("Soft delete first");
+                throw new Exception(ExceptionMessage.SoftDeletion);
             }
             _unitOfWork.ArticleRepository.Delete(article);
             await _unitOfWork.SaveAsync();
@@ -96,21 +91,23 @@ namespace API.Services {
 
         public async Task<ArticleResponse?> GetArticle(int articleId)
         {
+            return _mapper.Map<ArticleResponse?>(await GetArticleEntity(articleId));
+        }
+
+        private async Task<Article> GetArticleEntity(int articleId)
+        {
             var article = await _unitOfWork.ArticleRepository.GetAsync(articleId);
             if (article == null) {
-                throw new Exception("Article not found");
+                // TODO: handle using Global handler
+                throw new Exception(ExceptionMessage.ArticleNotFound);
             }
-            return _mapper.Map<ArticleResponse?>(article);
+            return article;
         }
 
         public async Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request)
         {
             try {
-                Article? article = await _unitOfWork.ArticleRepository.GetAsync(articleId);
-                if (article == null) {
-                    // TODO: handle using Global handler
-                    throw new Exception("Article not found");
-                }
+                var article = await GetArticleEntity(articleId);
                 article = _unitOfWork.ArticleRepository.Update(_mapper.Map(request, article));
                 return _mapper.Map<ArticleResponse>(article);
             } catch (Exception e) {
@@ -123,7 +120,7 @@ namespace API.Services {
             //TODO: file convertion & file upload
             var fileRequest = (ArticleCreationRequestFile) request;
             var file = fileRequest.File;
-            var convertedText = _fileConverter.ConvertFileToText(file);
+            
             return await _unitOfWork.ArticleRepository.InsertAsync(_mapper.Map<Article>(request));
         }
 

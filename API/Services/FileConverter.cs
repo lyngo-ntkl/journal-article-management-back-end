@@ -1,4 +1,5 @@
 using System.Text;
+using API.Utils;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
 using Spire.Doc;
@@ -7,7 +8,7 @@ namespace API.Services {
     public interface FileConverter {
         Task<string> ConvertFileToText(IFormFile? file);
         string ConvertPdfToText(Stream fileStream);
-        Task<string> ConvertWordToText(Stream fileStream, FileFormat fileFormat);
+        string ConvertWordToText(Stream fileStream, FileFormat fileFormat);
         Task<string> GetText(Stream fileStream);
     }
 
@@ -16,7 +17,7 @@ namespace API.Services {
         public async Task<string> ConvertFileToText(IFormFile? file)
         {
             if (file == null) {
-                throw new Exception("File not exist");
+                throw new Exception(ExceptionMessage.FileNotExist);
             }
             var extension = GetExtension(file.FileName);
             var fileStream = file.OpenReadStream();
@@ -24,13 +25,13 @@ namespace API.Services {
                 case ".pdf":
                     return ConvertPdfToText(fileStream);
                 case ".doc":
-                    return await ConvertWordToText(fileStream, FileFormat.Doc);
+                    return ConvertWordToText(fileStream, FileFormat.Doc);
                 case ".docx":
-                    return await ConvertWordToText(fileStream, FileFormat.Docx);
+                    return ConvertWordToText(fileStream, FileFormat.Docx);
                 case ".txt":
                     return await GetText(fileStream);
                 default:
-                    throw new Exception("Unsupport type");
+                    throw new Exception(ExceptionMessage.UnsupportedFileType);
             }
         }
 
@@ -47,7 +48,7 @@ namespace API.Services {
             return stringBuilder.ToString();
         }
 
-        public async Task<string> ConvertWordToText(Stream fileStream, FileFormat fileFormat)
+        public string ConvertWordToText(Stream fileStream, FileFormat fileFormat)
         {
             Document document = new Document();
             document.LoadFromStream(fileStream, fileFormat);
