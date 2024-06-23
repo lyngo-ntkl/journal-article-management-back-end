@@ -14,11 +14,6 @@ namespace API.Configurations {
 
             //TODO: converter for topic ids, referencesId
             // article-related
-            CreateMap<ArticleCreationRequest, Article>()
-                .ForMember(article => article.Authors, mappingOptions => mappingOptions.ConvertUsing<AuthorIdsToAuthorsConverter, ICollection<int>?>(src => src.AuthorIds))
-                .ForMember(article => article.Topics, mappingOptions => mappingOptions.ConvertUsing<TopicIdsToTopicsConverter, ICollection<int>?>(src => src.TopicIds))
-                .ForMember(article => article.Status, config => config.MapFrom(src => ArticleStatus.DRAFTED))
-                .ForAllMembers(configOptions => configOptions.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<ArticleCreationRequestText, Article>()
                 .ForMember(article => article.Authors, mappingOptions => mappingOptions.ConvertUsing<AuthorIdsToAuthorsConverter, ICollection<int>?>(src => src.AuthorIds))
                 .ForMember(article => article.Topics, mappingOptions => mappingOptions.ConvertUsing<TopicIdsToTopicsConverter, ICollection<int>?>(src => src.TopicIds))
@@ -26,7 +21,6 @@ namespace API.Configurations {
                 .ForMember(article => article.Status, config => config.MapFrom(src => ArticleStatus.DRAFTED))
                 .ForAllMembers(configOptions => configOptions.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<ArticleCreationRequestFile, Article>()
-                .ForMember(article => article.Authors, mappingOptions => mappingOptions.ConvertUsing<AuthorIdsToAuthorsConverter, ICollection<int>?>(src => src.AuthorIds))
                 .ForMember(article => article.Topics, mappingOptions => mappingOptions.ConvertUsing<TopicIdsToTopicsConverter, ICollection<int>?>(src => src.TopicIds))
                 .ForMember(article => article.Status, config => config.MapFrom(src => ArticleStatus.DRAFTED))
                 .ForAllMembers(configOptions => configOptions.Condition((src, dest, srcMember) => srcMember != null));

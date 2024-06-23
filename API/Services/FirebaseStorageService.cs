@@ -1,4 +1,5 @@
 using API.Configurations;
+using API.Utils;
 
 namespace API.Services {
     public interface FirebaseStorageService {
@@ -19,6 +20,7 @@ namespace API.Services {
             // TODO: research about time out of provider token
             var storage = _firebaseConfiguration.FirebaseStorage;
             var cancellationTokenSource = new CancellationTokenSource();
+            fileName = FileUtils.GenerateFileName(fileName);
             return await storage.Child(fileName).PutAsync(stream, cancellationTokenSource.Token, contentType);
         }
     }

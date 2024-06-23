@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Net.Http.Json;
 using System.Text;
 using Constant;
+using Microsoft.OpenApi.Extensions;
 using Newtonsoft.Json;
 
 namespace UnitTesting.Article {
@@ -10,7 +12,6 @@ namespace UnitTesting.Article {
             HttpClient client = new HttpClient();
             var data = new Dictionary<string, dynamic>
             {
-                { "type", "text" },
                 { "title", "Lorem ipsum dolor sit amet"},
                 { "abstract", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
                 { "introduction", "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?" },
@@ -32,9 +33,12 @@ namespace UnitTesting.Article {
                 { "topicIds", new Collection<int> { 1 } }
             };
             var body = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8,"application/json");
-            var response = await client.PostAsync(Route.Host + Route.BaseUrl + Route.Article, body);
+            var response = await client.PostAsync(Route.Host + Route.BaseUrl + Route.Article + "/text", body);
             var actual = response.IsSuccessStatusCode;
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
+
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(content);
+
             var expect = true;
             Assert.That(actual, Is.EqualTo(expect));
         }
@@ -52,14 +56,14 @@ namespace UnitTesting.Article {
             Assert.IsNotEmpty(url);
         }
         
-        // [Test]
-        // public async Task TestCreateArticleUsingFileSuccessfully() {
-        //     var requestBody = new MultipartFormDataContent();
-        //     requestBody.Add(new StreamContent(File.OpenRead("testArticle.txt")), "File");
-        //     requestBody.Add(JsonContent.Create(new Collection<int> {1, 3}), "Authors");
-        //     requestBody.Add(JsonContent.Create(new Collection<int> {1}), "Topics");
-        //     HttpClient client = new HttpClient();
-        //     await client.PostAsync(BaseUrl, requestBody);
-        // }
+        [Test]
+        public async Task TestCreateArticleUsingFileSuccessfully() {
+            var requestBody = new MultipartFormDataContent();
+            requestBody.Add(new StreamContent(File.OpenRead("testArticle.txt")), "File");
+            requestBody.Add(JsonContent.Create(new Collection<int> {1, 3}), "Authors");
+            requestBody.Add(JsonContent.Create(new Collection<int> {1}), "Topics");
+            HttpClient client = new HttpClient();
+            await client.PostAsync(Route.Host + Route.BaseUrl + Route.Article, requestBody);
+        }
     }
 }

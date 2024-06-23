@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Entities {
     public enum Role {
-        AUTHOR,
-        READER,
-        EDITOR
+            AUTHOR,
+            READER,
+            EDITOR
     }
 
     public class User: BaseEntity {

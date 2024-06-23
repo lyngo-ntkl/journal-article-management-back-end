@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using API.CronJob;
 using API.Dto.Requests;
 using API.Dto.Responses;
@@ -11,7 +12,8 @@ using Quartz.Impl;
 
 namespace API.Services {
     public interface ArticleService {
-        Task<ArticleResponse?> CreateNewArticle(ArticleCreationRequest request);
+        Task<ArticleResponse?> CreateNewArticleByText(ArticleCreationRequestText request);
+        Task<ArticleResponse?> CreateNewArticleByFile(ArticleCreationRequestFile request);
         Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request);
         Task<ArticleResponse?> GetArticle(int articleId);
         Task<ArticleResponse> DeleteDraftArticle(int articleId);
@@ -20,23 +22,62 @@ namespace API.Services {
     }
     public class ArticleServiceImplementation : ArticleService
     {
+        // private const string AllCharacterPattern = "([\\w\\s!\"#$%&'*+.,-;:?()<>\\/=@[]^`{}|~\n\r])";
+        // private const string ArticleStructurePattern = AllCharacterPattern +
+        //     "(?:Abstract|Abstraction)\r\n" + AllCharacterPattern +
+        //     "(?:Introduction\r\n)" + AllCharacterPattern +
+        //     "(?:Methods|Methodology)\r\n" + AllCharacterPattern +
+        //     "(?:Results\r\n)" + AllCharacterPattern +
+        //     "(?:Conclusion\r\n)" + AllCharacterPattern +
+        //     "(?:References\r\n)" + AllCharacterPattern;
+        // private const string ArticleStructurePattern = @"(?:Abstract|Abstraction)\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)Introduction\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)(?:Methods|Methodology)\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)Results\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)Conclusion\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)References\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)";
+        private const string ArticleStructurePattern = "(?:Abstract|Abstraction)(?:\n|\r\n)((?:.|\n|\r\n)*)Introduction(?:\n|\r\n)((?:.|\n|\r\n)*)(?:Methods|Methodology)(?:\n|\r\n)((?:.|\n|\r\n)*)Results(?:\n|\r\n)((?:.|\n|\r\n)*)Conclusion(?:\n|\r\n)((?:.|\n|\r\n)*)References(?:\n|\r\n)((?:.|\n|\r\n)*)";
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly FileConverter _fileConverter;
-        public ArticleServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, FileConverter fileConverter) {
+        private readonly FirebaseStorageService _firebaseStorageService;
+        public ArticleServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, FileConverter fileConverter, FirebaseStorageService firebaseStorageService) {
             this._unitOfWork = unitOfWork;
             this._mapper = mapper;
             this._fileConverter = fileConverter;
+            this._firebaseStorageService = firebaseStorageService;
         }
-        public async Task<ArticleResponse?> CreateNewArticle(ArticleCreationRequest request)
-        {
+
+        public async Task<ArticleResponse?> CreateNewArticleByFile(ArticleCreationRequestFile request) {
+            //TODO: file convertion & file upload
+            var file = request.File;
+            if (file == null) {
+                throw new Exception(ExceptionMessage.FileNotExist);
+            }
+            
+            var content = await _fileConverter.ConvertFileToText(file);
+            var match = Regex.Match(content, ArticleStructurePattern);
+            if (match == null || !match.Success) {
+                throw new Exception(ExceptionMessage.WrongFileFormat);
+            }
+            var groups = match.Groups;
+            var article = new Article {
+                Title = content.Split("Abstract", 2)[0].Trim(),
+                Abstract = groups[1].Value.Trim(),
+                Introduction = groups[2].Value.Trim(),
+                Method = groups[3].Value.Trim(),
+                Results = groups[4].Value.Trim(),
+                Conclusion = groups[5].Value.Trim()
+            };
+            
+
+            // article.FilePath = await _firebaseStorageService.UploadFileAsync(file.OpenReadStream(), file.ContentType, file.FileName);
+
+            article = await _unitOfWork.ArticleRepository.InsertAsync(article);
+            await _unitOfWork.SaveAsync();
+            return _mapper.Map<ArticleResponse>(article);
+        }
+
+        public async Task<ArticleResponse?> CreateNewArticleByText(ArticleCreationRequestText request) {
             try {
-                Article article;
-                if (request.GetType() == typeof(ArticleCreationRequestFile)) {
-                    article = await CreateNewArticleByFile(request);
-                } else {
-                    article = await CreateNewArticleByText(request);
-                }
+                Article article = _mapper.Map<Article>(request);
+                article = await _unitOfWork.ArticleRepository.InsertAsync(article);
+                await _unitOfWork.SaveAsync();
                 return _mapper.Map<ArticleResponse>(article);
             } catch (Exception e) {
                 Console.WriteLine(e.StackTrace);
@@ -86,7 +127,6 @@ namespace API.Services {
             _unitOfWork.ArticleRepository.Delete(article);
             await _unitOfWork.SaveAsync();
 
-            // TODO: hard delete after 30 days of soft delete
             return _mapper.Map<ArticleResponse>(article);
         }
 
@@ -115,21 +155,6 @@ namespace API.Services {
                 Console.WriteLine(e.StackTrace);
                 return null;
             }
-        }
-
-        private async Task<Article> CreateNewArticleByFile(ArticleCreationRequest request) {
-            //TODO: file convertion & file upload
-            var fileRequest = (ArticleCreationRequestFile) request;
-            var file = fileRequest.File;
-            
-            return await _unitOfWork.ArticleRepository.InsertAsync(_mapper.Map<Article>(request));
-        }
-
-        private async Task<Article> CreateNewArticleByText(ArticleCreationRequest request) {
-            Article article = _mapper.Map<Article>(request);
-            article = await _unitOfWork.ArticleRepository.InsertAsync(article);
-            await _unitOfWork.SaveAsync();
-            return article;
         }
 
         public async Task<ArticleResponse> SubmitArticle(int articleId)

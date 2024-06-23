@@ -3,24 +3,16 @@ using System.Text.Json.Serialization;
 
 namespace API.Dto.Requests {
 
-    [JsonDerivedType(typeof(ArticleCreationRequestFile), typeDiscriminator: "file")]
-    [JsonDerivedType(typeof(ArticleCreationRequestText), typeDiscriminator: "text")]
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
-    public class ArticleCreationRequest {
-        // TODO: Change validation: field in draft article could be null
+    public class ArticleCreationRequestFile {
         [Required]
-        public ICollection<int>? AuthorIds {get; set;}
+        public IFormFile? File {get; set;}
         [Required]
         public ICollection<int>? TopicIds {get; set;}
     }
 
-    public class ArticleCreationRequestFile: ArticleCreationRequest {
-        [Required]
-        public IFormFile? File {get; set;}
-    }
-
-    public class ArticleCreationRequestText: ArticleCreationRequest {
+    public class ArticleCreationRequestText {
         //TODO: length validation
+        // TODO: Change validation: field in draft article could be null
         [Required]
         public string? Title {get; set;}
         [Required]
@@ -34,5 +26,9 @@ namespace API.Dto.Requests {
         [Required]
         public string? Conclusion {get; set;}
         public ICollection<int>? ReferenceIds {get; set;}
+        [Required]
+        public ICollection<int>? AuthorIds {get; set;}
+        [Required]
+        public ICollection<int>? TopicIds {get; set;}
     }
 }

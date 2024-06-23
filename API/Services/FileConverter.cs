@@ -19,7 +19,7 @@ namespace API.Services {
             if (file == null) {
                 throw new Exception(ExceptionMessage.FileNotExist);
             }
-            var extension = GetExtension(file.FileName);
+            var extension = FileUtils.GetExtension(file.FileName);
             var fileStream = file.OpenReadStream();
             switch (extension) {
                 case ".pdf":
@@ -59,22 +59,6 @@ namespace API.Services {
         {
             StreamReader streamReader = new StreamReader(fileStream);
             return await streamReader.ReadToEndAsync();
-        }
-
-        private string? GetExtension(string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                return null;
-            }
-
-            int index = fileName.LastIndexOf('.');
-            if (index < 0)
-            {
-                return null;
-            }
-
-            return fileName.Substring(index);
         }
     }
 }

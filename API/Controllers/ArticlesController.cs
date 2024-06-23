@@ -15,9 +15,14 @@ namespace API.Controllers {
             _articleService = articleService;
         }
 
-        [HttpPost("")]
-        public async Task<ArticleResponse?> CreateNewArticle(ArticleCreationRequest request) {
-            return await _articleService.CreateNewArticle(request);
+        [HttpPost("/text")]
+        public async Task<ArticleResponse?> CreateNewArticleByText(ArticleCreationRequestText request) {
+            return await _articleService.CreateNewArticleByText(request);
+        }
+
+        [HttpPost("/file")]
+        public async Task<ArticleResponse?> CreateNewArticleByFile([FromForm] ArticleCreationRequestFile request) {
+            return await _articleService.CreateNewArticleByFile(request);
         }
 
         [HttpGet("/{id}")]
