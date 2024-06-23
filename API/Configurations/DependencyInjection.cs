@@ -41,7 +41,19 @@ namespace API.Utils {
                     Version = "v1"
                 });
             });
+            // scheduler
             services.AddScoped<PermanentDeletionJob>();
+            // cors
+            services.AddCors(options => {
+                options.AddPolicy("journal-article-management-policy", policy => {
+                    // TODO: add new origin when deploy
+                    policy
+                        .WithOrigins("http://localhost:4200")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
+            });
         }
     }
 }

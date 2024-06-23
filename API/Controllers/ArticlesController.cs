@@ -1,12 +1,15 @@
+using System.Collections.ObjectModel;
 using API.Dto.Requests;
 using API.Dto.Responses;
 using API.Services;
 using API.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers {
     [Route(ApiPath.Version1 + ApiPath.Api + ApiPath.Articles)]
     [ApiController]
+    [AllowAnonymous]
     public class ArticleController: ControllerBase {
         private ArticleService _articleService;
 
@@ -14,6 +17,11 @@ namespace API.Controllers {
         {
             _articleService = articleService;
         }
+
+        // [HttpOptions]
+        // public bool Test() {
+        //     return true;
+        // }
 
         [HttpPost("/text")]
         public async Task<ArticleResponse?> CreateNewArticleByText(ArticleCreationRequestText request) {
@@ -23,6 +31,11 @@ namespace API.Controllers {
         [HttpPost("/file")]
         public async Task<ArticleResponse?> CreateNewArticleByFile([FromForm] ArticleCreationRequestFile request) {
             return await _articleService.CreateNewArticleByFile(request);
+        }
+
+        [HttpGet("")]
+        public async Task<Collection<ArticleResponse>> GetArticles() {
+            return await _articleService.GetArticles();
         }
 
         [HttpGet("/{id}")]

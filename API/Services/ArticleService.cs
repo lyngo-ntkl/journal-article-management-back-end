@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using API.CronJob;
 using API.Dto.Requests;
@@ -15,6 +16,8 @@ namespace API.Services {
         Task<ArticleResponse?> CreateNewArticleByText(ArticleCreationRequestText request);
         Task<ArticleResponse?> CreateNewArticleByFile(ArticleCreationRequestFile request);
         Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request);
+        Task<Collection<ArticleResponse>> GetArticles();
+        Task<Collection<ArticleResponse>> GetPersonalArticles();
         Task<ArticleResponse?> GetArticle(int articleId);
         Task<ArticleResponse> DeleteDraftArticle(int articleId);
         Task<ArticleResponse> DeleteDraftArticlePermanent(int articleId);
@@ -182,6 +185,16 @@ namespace API.Services {
             article = _unitOfWork.ArticleRepository.Update(article);
             await _unitOfWork.SaveAsync();
             return _mapper.Map<ArticleResponse>(article);
+        }
+
+        public async Task<Collection<ArticleResponse>> GetArticles()
+        {
+            return _mapper.Map<Collection<ArticleResponse>>(await _unitOfWork.ArticleRepository.GetAllAsync());
+        }
+
+        public Task<Collection<ArticleResponse>> GetPersonalArticles()
+        {
+            throw new NotImplementedException();
         }
     }
 }

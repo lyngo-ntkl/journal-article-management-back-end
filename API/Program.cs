@@ -22,4 +22,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.UseCors("journal-article-management-policy");
+
 app.Run();
