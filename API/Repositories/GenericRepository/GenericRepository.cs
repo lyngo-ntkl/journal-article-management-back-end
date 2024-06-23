@@ -1,18 +1,19 @@
 using System.Collections.ObjectModel;
 using API.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace API.Repositories {
     public interface GenericRepository<T> where T: BaseEntity {
         void Delete(T entity);
-        void DeleteAsync(int id);
+        Task DeleteAsync(int id);
         T? Get(int id);
         List<T> GetAll();
         Task<List<T>> GetAllAsync();
         Task<T?> GetAsync(int id);
-        void Insert(T entity);
-        void InsertAsync(T entity);
-        void Update(T entity);
+        T Insert(T entity);
+        Task<T> InsertAsync(T entity);
+        T Update(T entity);
     }
 
     public class GenericRepositoryImplementation<T> : GenericRepository<T> where T : BaseEntity
@@ -31,7 +32,7 @@ namespace API.Repositories {
             _dbSet.Remove(entity);
         }
 
-        public async void DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             T? entity = await this.GetAsync(id);
             if (entity != null) {
@@ -59,19 +60,24 @@ namespace API.Repositories {
             return await this._dbSet.FindAsync(id);
         }
 
-        public void Insert(T entity)
+        public T Insert(T entity)
         {
-            this._dbSet.Add(entity);
+            return this._dbSet.Add(entity).Entity;
         }
 
-        public async void InsertAsync(T entity)
+        public async Task<T> InsertAsync(T entity)
         {
-            await this._dbSet.AddAsync(entity);
+            EntityEntry<T> entryEntity = await this._dbSet.AddAsync(entity);
+            return entryEntity.Entity;
         }
 
-        public void Update(T entity)
+        public T Update(T entity)
         {
-            this._dbSet.Update(entity);
+            EntityEntry<T> updatedEntity = this._dbSet.Update(entity);
+            // _dbSet.Entry(entity).State = EntityState.Modified;
+            //_dbSet.Attach(entity);
+            //_dbContext.Entry(entity).State = EntityState.Modified;
+            return entity;
         }
     }
 }
