@@ -1,25 +1,30 @@
 using API.Dto.Requests;
 using API.Dto.Responses;
+using API.Entities;
 using API.Repositories;
 using API.Utils;
+using AutoMapper;
 
 namespace API.Services {
     public interface UserService {
-        Task<AuthenticationResponse> loginWithEmailPassword(EmailPasswordAuthenticationRequest request);
+        Task<AuthenticationResponse> LoginWithEmailPassword(EmailPasswordAuthenticationRequest request);
+        Task RegisterAccount(EmailPasswordRegistrationRequest request);
     }
 
     public class UserServiceImplementation : UserService
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly JwtUtils _jwtUtils;
+        private readonly IMapper _mapper;
 
-        public UserServiceImplementation(UnitOfWork unitOfWork, IConfiguration configuration)
+        public UserServiceImplementation(UnitOfWork unitOfWork, IConfiguration configuration, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _jwtUtils = new JwtUtils(configuration);
+            _mapper = mapper;
         }
 
-        public async Task<AuthenticationResponse> loginWithEmailPassword(EmailPasswordAuthenticationRequest request)
+        public async Task<AuthenticationResponse> LoginWithEmailPassword(EmailPasswordAuthenticationRequest request)
         {
             var users = await _unitOfWork.UserRepository.GetAllAsync();
             var user = users.FirstOrDefault(user => user.Email == request.Email);
@@ -40,6 +45,16 @@ namespace API.Services {
             };
 
             return response;
+        }
+
+        public async Task RegisterAccount(EmailPasswordRegistrationRequest request)
+        {
+            if (_unitOfWork.UserRepository.GetAll().Exists(user => user.Email == request.Email)) {
+                throw new Exception(ExceptionMessage.RegisteredEmail);
+            }
+            var user = _mapper.Map<User>(request);
+            user = await _unitOfWork.UserRepository.InsertAsync(user);
+            await _unitOfWork.SaveAsync();
         }
     }
 }

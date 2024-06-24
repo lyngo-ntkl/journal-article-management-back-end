@@ -17,10 +17,15 @@ namespace API.Controllers
             _userService = userService;
         }
 
-        [HttpPost]
-        public async Task<AuthenticationResponse> loginWithEmailPassword(EmailPasswordAuthenticationRequest request)
+        [HttpPost("/email-passwor-auth")]
+        public async Task<AuthenticationResponse> LoginWithEmailPassword(EmailPasswordAuthenticationRequest request)
         {
-            return await _userService.loginWithEmailPassword(request);
+            return await _userService.LoginWithEmailPassword(request);
+        }
+
+        [HttpPost("/registration")]
+        public async Task RegisterAccount(EmailPasswordRegistrationRequest request) {
+            await _userService.RegisterAccount(request);
         }
     }
 }

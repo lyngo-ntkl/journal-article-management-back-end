@@ -11,8 +11,9 @@ namespace API.Configurations {
         {
             // user-related
             CreateMap<User, UserResponse>();
+            CreateMap<EmailPasswordRegistrationRequest, User>()
+                .ForMember(user => user.Role, options => options.MapFrom(request => Role.READER));
 
-            //TODO: converter for topic ids, referencesId
             // article-related
             CreateMap<ArticleCreationRequestText, Article>()
                 .ForMember(article => article.Authors, mappingOptions => mappingOptions.ConvertUsing<AuthorIdsToAuthorsConverter, ICollection<int>?>(src => src.AuthorIds))
