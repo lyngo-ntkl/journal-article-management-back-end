@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using API.CustomAttributes;
 
 namespace API.Dto.Requests
 {
@@ -6,7 +7,7 @@ namespace API.Dto.Requests
     {
         [EmailAddress]
         public required string Email { get; set; }
-        // TODO: validate password format
+        [Password]
         public required string Password { get; set; }
     }
 }
