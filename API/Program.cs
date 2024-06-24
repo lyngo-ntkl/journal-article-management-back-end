@@ -3,8 +3,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDependencies(builder.Configuration.GetConnectionString("database"));
+builder.Services.AddDependencies(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 var app = builder.Build();
 
@@ -12,7 +11,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(config => {
+        config.SwaggerEndpoint("/swagger/v1/swagger.json", "Journal Article API");
+    });
 }
 
 app.UseHttpsRedirection();
@@ -20,5 +21,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors("journal-article-management-policy");
 
 app.Run();

@@ -1,8 +1,12 @@
 using API.Configurations;
+using API.CronJob;
 using API.Entities;
 using API.Repositories;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Quartz;
+using Quartz.Impl;
 
 namespace API.Utils {
     public static class DependencyInjection {
@@ -12,12 +16,44 @@ namespace API.Utils {
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
             services.AddScoped<UserRepository, UserRepositoryImplementation>();
+            services.AddScoped<ArticleRepository, ArticleRepositoryImplementation>();
+            services.AddScoped<TopicRepository, TopicRepositoryImplementation>();
+            services.AddScoped<ReferenceRepository, ReferenceRepositoryImplementation>();
             // services
             services.AddScoped<UserService, UserServiceImplementation>();
+            services.AddScoped<ArticleService, ArticleServiceImplementation>();
+            services.AddScoped<FirebaseStorageService, FirebaseStorageServiceImplementation>();
+
+            services.AddScoped<FileConverter, FileConverterImplementation>();
             // controllers
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.WriteIndented = true;
+                });
             // mapper
             services.AddAutoMapper(typeof(MapperConfiguration));
+            services.AddSingleton<FirebaseConfiguration>();
+            // swagger
+            services.AddSwaggerGen(config => {
+                config.SwaggerDoc("v1", new OpenApiInfo() {
+                    Title = "Journal Article API",
+                    Version = "v1"
+                });
+            });
+            // scheduler
+            services.AddScoped<PermanentDeletionJob>();
+            // cors
+            services.AddCors(options => {
+                options.AddPolicy("journal-article-management-policy", policy => {
+                    // TODO: add new origin when deploy
+                    policy
+                        .WithOrigins("http://localhost:4200")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
+            });
         }
     }
 }
