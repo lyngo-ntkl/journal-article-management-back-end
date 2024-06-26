@@ -17,7 +17,7 @@ namespace API.Controllers
             _userService = userService;
         }
 
-        [HttpPost("/email-passwor-auth")]
+        [HttpPost("/email-password-auth")]
         public async Task<AuthenticationResponse> LoginWithEmailPassword(EmailPasswordAuthenticationRequest request)
         {
             return await _userService.LoginWithEmailPassword(request);

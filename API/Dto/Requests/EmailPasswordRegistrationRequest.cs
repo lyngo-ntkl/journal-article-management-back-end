@@ -6,13 +6,13 @@ namespace API.Dto.Requests {
     public class EmailPasswordRegistrationRequest {
         [Required]
         [EmailAddress]
-        public string? Email {get; set;}
+        public required string Email {get; set;}
         [Required]
         [Password]
-        public string? Password {get; set;}
+        public required string Password {get; set;}
         [Required]
-        public string? ConfirmedPassword {get; set;}
+        public required string ConfirmedPassword {get; set;}
         [Required]
-        public string? Name {get; set;}
+        public required string Name {get; set;}
     }
 }

@@ -33,7 +33,8 @@ namespace API.Services {
                 throw new Exception(ExceptionMessage.EmailNotFound);
             }
             // TODO: password hashing
-            if (user.Password != request.Password)
+            HashingUtils.Hash(request.Password, user.PasswordSalt, out string passwordHash);
+            if (passwordHash != user.PasswordHash)
             {
                 throw new Exception(ExceptionMessage.PasswordNotFound);
             }
@@ -52,7 +53,12 @@ namespace API.Services {
             if (_unitOfWork.UserRepository.GetAll().Exists(user => user.Email == request.Email)) {
                 throw new Exception(ExceptionMessage.RegisteredEmail);
             }
+
             var user = _mapper.Map<User>(request);
+            HashingUtils.Hash(request.Password, out string salt, out string hash);
+            user.PasswordSalt = salt;
+            user.PasswordHash = hash;
+
             user = await _unitOfWork.UserRepository.InsertAsync(user);
             await _unitOfWork.SaveAsync();
         }
