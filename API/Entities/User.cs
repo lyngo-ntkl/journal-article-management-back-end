@@ -7,11 +7,11 @@ namespace API.Entities {
             EDITOR
     }
 
+    [Index(nameof(Email), IsUnique = true)]
     public class User: BaseEntity {
-        // TODO: Unique annotation
         public required string Email {get; set;}
-        // TODO: may change when add hash for password
-        public string? Password {get; set;}
+        public required string PasswordSalt {get; set;}
+        public required string PasswordHash {get; set;}
         public required string Name {get; set;}
         public required Role Role {get; set;}
 

@@ -32,7 +32,7 @@ namespace API.Utils {
                     options.JsonSerializerOptions.WriteIndented = true;
                 });
             // mapper
-            services.AddAutoMapper(typeof(MapperConfiguration));
+            services.AddAutoMapper(typeof(MapperProfile));
             services.AddSingleton<FirebaseConfiguration>();
             // swagger
             services.AddSwaggerGen(config => {

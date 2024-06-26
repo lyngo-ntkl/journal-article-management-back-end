@@ -1,5 +1,11 @@
-namespace API.Utils {
-    public class ExceptionMessage {
+﻿namespace API.Utils
+{
+    public class ExceptionMessage
+    {
+        public const string RegisteredEmail = "Email has been registered";
+        public const string EmailNotFound = "Email not found";
+        public const string PasswordNotFound = "Password doesn't match";
+        public const string InvalidPassword = "Invalid password. Password contains at least 16 characters including at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character.";
         public const string ArticleNotFound = "Article not found";
         public const string DraftArticleDeletionAllowance = "Only draft article can be delete";
         public const string SoftDeletion = "Need to soft delete before delete permanently";

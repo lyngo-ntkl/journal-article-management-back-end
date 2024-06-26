@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Entities {
     public abstract class BaseEntity {
+        // TODO: auto-update date time
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id {get; set;}
         public int CreatedBy {get; set;}
