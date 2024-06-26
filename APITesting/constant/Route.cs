@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Hosting;
-
 namespace Constant {
     public class Route {
         public const string BaseAddress = "https://localhost:7258/v1/api";
