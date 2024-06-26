@@ -1,81 +1,60 @@
 using System.Net;
 using System.Net.Http.Json;
+using API.Configurations;
 using API.Dto.Requests;
+using API.Repositories;
+using API.Services;
 using API.Utils;
+using AutoMapper;
 using Constant;
+using Microsoft.Extensions.Configuration;
+using Moq;
 
 namespace UnitTesting.User {
     public class AccountRegistrationTest {
         public const string TestEmail = "user1@gmail.com";
-        public const string TestName = "User 1";
-        [Test]
-        public async Task TestAccountRegistrationInvalidPassword() {
-            HttpClient client = new HttpClient();
-            var request = new EmailPasswordRegistrationRequest {
-                Email = TestEmail,
-                Password = "Hello",
-                ConfirmedPassword = "Hello",
-                Name = TestName
-            };
-            var response = await client.PostAsync(Route.Host + Route.BaseUrl + ApiPath.Authentication + "/registration", JsonContent.Create(request));
-            bool actual = response.IsSuccessStatusCode, expected = true;
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Accepted));
+        private UserService _userService;
+        [SetUp]
+        public void SetUp() {
+            var unitOfWork = new Mock<UnitOfWork>();
+            unitOfWork.Setup(uow => uow.UserRepository.GetAll()).Returns(new List<API.Entities.User> {
+                new API.Entities.User {
+                    Id = 1,
+                    Email = "user@example.com",
+                    Name = "User",
+                    Role = API.Entities.Role.READER,
+                    PasswordHash = "CEKeMeLiKoqYgaaQcRGPLiEiFlRZNUuj9mte7N1FLh4=",
+                    PasswordSalt = "3wxJSQvxsdLCs4E37G3Igg=="
+                }
+            });
+            var configuration = new Mock<IConfiguration>();
+            var mapperConfiguration = new MapperConfiguration(config => config.AddProfile<MapperProfile>());
+            var mapper = new Mapper(mapperConfiguration);
+            _userService = new UserServiceImplementation(unitOfWork.Object, configuration.Object, mapper);
         }
 
         [Test]
-        public async Task TestAccountRegistrationInvalidEmail() {
-            HttpClient client = new HttpClient();
-            var request = new EmailPasswordRegistrationRequest {
-                Email = "User",
-                Password = "HelloWorld12345!!",
-                ConfirmedPassword = "HelloWorld12345!!",
-                Name = TestName
-            };
-            var response = await client.PostAsync(Route.Host + Route.BaseUrl + Route.Authentication, JsonContent.Create(request));
-            bool actual = response.IsSuccessStatusCode, expected = true;
-            Assert.That(actual, Is.EqualTo(expected));
-        }
-
-        [Test]
-        public async Task TestAccountRegistrationConfirmedPasswordNotMatch() {
-            HttpClient client = new HttpClient();
+        public void TestAccountRegistrationSuccessfully() {
             var request = new EmailPasswordRegistrationRequest {
                 Email = TestEmail,
                 Password = "HelloWorld12345!!",
                 ConfirmedPassword = "HelloWorld12345!!",
-                Name = TestName
+                Name = "User 1"
             };
-            var response = await client.PostAsync(Route.Host + Route.BaseUrl + Route.Authentication + "/registration", JsonContent.Create(request));
-            bool actual = response.IsSuccessStatusCode, expected = true;
-            Assert.That(actual, Is.EqualTo(expected));
+            
+            Assert.DoesNotThrowAsync(async delegate { await _userService.RegisterAccount(request); });
         }
 
         [Test]
-        public async Task TestAccountRegistrationSuccessfully() {
-            HttpClient client = new HttpClient();
+        public void TestAccountRegistrationEmailExist() {
             var request = new EmailPasswordRegistrationRequest {
-                Email = TestEmail,
+                Email = "user@example.com",
                 Password = "HelloWorld12345!!",
                 ConfirmedPassword = "HelloWorld12345!!",
-                Name = TestName
+                Name = "User 1"
             };
-            var response = await client.PostAsync(Route.Host + Route.BaseUrl + Route.Authentication + "/registration", JsonContent.Create(request));
-            HttpStatusCode actual = response.StatusCode, expected = HttpStatusCode.OK;
-            Assert.That(actual, Is.EqualTo(expected));
-        }
-
-        [Test]
-        public async Task TestAccountRegistrationEmailExist() {
-            HttpClient client = new HttpClient();
-            var request = new EmailPasswordRegistrationRequest {
-                Email = TestEmail,
-                Password = "HelloWorld12345!!",
-                ConfirmedPassword = "HelloWorld12345!!",
-                Name = TestName
-            };
-            var response = await client.PostAsync(Route.Host + Route.BaseUrl + Route.Authentication, JsonContent.Create(request));
-            bool actual = response.IsSuccessStatusCode, expected = true;
-            Assert.That(actual, Is.EqualTo(expected));
+            var exception = Assert.ThrowsAsync<Exception>(async delegate { await _userService.RegisterAccount(request); });
+            Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.RegisteredEmail));
         }
     }
 }

@@ -6,8 +6,8 @@ using API.Enums;
 using AutoMapper;
 
 namespace API.Configurations {
-    public class MapperConfiguration: Profile {
-        public MapperConfiguration()
+    public class MapperProfile: Profile {
+        public MapperProfile()
         {
             // user-related
             CreateMap<User, UserResponse>();
