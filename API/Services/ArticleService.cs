@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using API.CronJob;
 using API.Dto.Requests;
@@ -17,7 +18,7 @@ namespace API.Services {
         Task<ArticleResponse?> CreateNewArticleByFile(ArticleCreationRequestFile request);
         Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request);
         Task<Collection<ArticleResponse>> GetArticles();
-        Task<Collection<ArticleResponse>> GetPersonalArticles();
+        Task<Collection<ArticleResponse>> GetPersonalArticles(string token);
         Task<ArticleResponse?> GetArticle(int articleId);
         Task<ArticleResponse> DeleteDraftArticle(int articleId);
         Task<ArticleResponse> DeleteDraftArticlePermanent(int articleId);
@@ -25,25 +26,18 @@ namespace API.Services {
     }
     public class ArticleServiceImplementation : ArticleService
     {
-        // private const string AllCharacterPattern = "([\\w\\s!\"#$%&'*+.,-;:?()<>\\/=@[]^`{}|~\n\r])";
-        // private const string ArticleStructurePattern = AllCharacterPattern +
-        //     "(?:Abstract|Abstraction)\r\n" + AllCharacterPattern +
-        //     "(?:Introduction\r\n)" + AllCharacterPattern +
-        //     "(?:Methods|Methodology)\r\n" + AllCharacterPattern +
-        //     "(?:Results\r\n)" + AllCharacterPattern +
-        //     "(?:Conclusion\r\n)" + AllCharacterPattern +
-        //     "(?:References\r\n)" + AllCharacterPattern;
-        // private const string ArticleStructurePattern = @"(?:Abstract|Abstraction)\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)Introduction\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)(?:Methods|Methodology)\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)Results\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)Conclusion\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)References\n([\w\s!""#$%&'*+.,-;:?()<>\/=@\[\]^`{}|~\n\r]*)";
         private const string ArticleStructurePattern = "(?:Abstract|Abstraction)(?:\n|\r\n)((?:.|\n|\r\n)*)Introduction(?:\n|\r\n)((?:.|\n|\r\n)*)(?:Methods|Methodology)(?:\n|\r\n)((?:.|\n|\r\n)*)Results(?:\n|\r\n)((?:.|\n|\r\n)*)Conclusion(?:\n|\r\n)((?:.|\n|\r\n)*)References(?:\n|\r\n)((?:.|\n|\r\n)*)";
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly FileConverter _fileConverter;
         private readonly FirebaseStorageService _firebaseStorageService;
-        public ArticleServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, FileConverter fileConverter, FirebaseStorageService firebaseStorageService) {
+        private readonly JwtUtils _jwtUtils;
+        public ArticleServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, FileConverter fileConverter, FirebaseStorageService firebaseStorageService, JwtUtils jwtUtils) {
             this._unitOfWork = unitOfWork;
             this._mapper = mapper;
             this._fileConverter = fileConverter;
             this._firebaseStorageService = firebaseStorageService;
+            this._jwtUtils = jwtUtils;
         }
 
         public async Task<ArticleResponse?> CreateNewArticleByFile(ArticleCreationRequestFile request) {
@@ -192,9 +186,16 @@ namespace API.Services {
             return _mapper.Map<Collection<ArticleResponse>>(await _unitOfWork.ArticleRepository.GetAllAsync());
         }
 
-        public Task<Collection<ArticleResponse>> GetPersonalArticles()
+        public async Task<Collection<ArticleResponse>> GetPersonalArticles(string token)
         {
-            throw new NotImplementedException();
+            var jwt = token.Split("Bearer")[1];
+            // TODO: get single claim
+            var claims = _jwtUtils.GetClaims(jwt);
+            var id = int.Parse(claims.First(claim => claim.Type == ClaimTypes.Sid).Value);
+            var user = await _unitOfWork.UserRepository.GetAsync(id);
+            var articles = await _unitOfWork.ArticleRepository.GetAllAsync();
+            articles = articles.FindAll(article => article.Authors?.FirstOrDefault(author => author.Id == id) != null);
+            return _mapper.Map<Collection<ArticleResponse>>(articles);
         }
     }
 }

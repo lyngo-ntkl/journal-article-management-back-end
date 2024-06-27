@@ -1,8 +1,8 @@
 ﻿using API.Entities;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.ObjectModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace API.Utils
@@ -21,7 +21,8 @@ namespace API.Utils
             var claims = new ClaimsIdentity(new Claim[]
             {
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
-                new Claim(ClaimTypes.Sid, user.Id.ToString())
+                new Claim(ClaimTypes.Sid, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email.ToString())
             });
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["security:secret-key"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
@@ -30,12 +31,19 @@ namespace API.Utils
                 SigningCredentials = credentials,
                 Subject = claims,
                 IssuedAt = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddDays(7)
-                // TODO: issuer & audience?
+                Expires = DateTime.UtcNow.AddDays(7),
+                Issuer = _configuration["security:issuer"]
+                // TODO: audience?
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        public IEnumerable<Claim> GetClaims(string jwt) {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.ReadJwtToken(jwt);
+            return token.Claims;
         }
     }
 }
