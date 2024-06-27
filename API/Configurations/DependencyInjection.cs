@@ -65,12 +65,16 @@ namespace API.Utils {
                 .AddJwtBearer(config => {
                     config.TokenValidationParameters = new TokenValidationParameters {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("security:secret-key"))),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("security:secret-key")!)),
                         ValidateLifetime = true,
                         ValidateIssuer = true,
-                        ValidIssuer = configuration.GetValue<string>("security:issuer")
+                        ValidIssuer = configuration.GetValue<string>("security:issuer"),
+                        ValidateAudience = false
                     };
                 });
+            services.AddAuthorization();
+            // http context
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
     }
 }

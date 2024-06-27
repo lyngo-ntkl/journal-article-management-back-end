@@ -34,8 +34,7 @@ namespace API.Controllers {
         [Authorize(Roles = AuthorRole)]
         [HttpGet("personal")]
         public async Task<Collection<ArticleResponse>> GetPersonalArticles() {
-            var authToken = HttpContext.Request.Headers.Authorization.ToString();
-            return await _articleService.GetPersonalArticles(authToken);
+            return await _articleService.GetPersonalArticles();
         }
 
         [HttpGet("")]

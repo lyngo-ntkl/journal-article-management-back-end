@@ -18,7 +18,7 @@ namespace API.Services {
         Task<ArticleResponse?> CreateNewArticleByFile(ArticleCreationRequestFile request);
         Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request);
         Task<Collection<ArticleResponse>> GetArticles();
-        Task<Collection<ArticleResponse>> GetPersonalArticles(string token);
+        Task<Collection<ArticleResponse>> GetPersonalArticles();
         Task<ArticleResponse?> GetArticle(int articleId);
         Task<ArticleResponse> DeleteDraftArticle(int articleId);
         Task<ArticleResponse> DeleteDraftArticlePermanent(int articleId);
@@ -32,12 +32,14 @@ namespace API.Services {
         private readonly FileConverter _fileConverter;
         private readonly FirebaseStorageService _firebaseStorageService;
         private readonly JwtUtils _jwtUtils;
-        public ArticleServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, FileConverter fileConverter, FirebaseStorageService firebaseStorageService, JwtUtils jwtUtils) {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ArticleServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, FileConverter fileConverter, FirebaseStorageService firebaseStorageService, IConfiguration configuration, IHttpContextAccessor httpContextAccessor) {
             this._unitOfWork = unitOfWork;
             this._mapper = mapper;
             this._fileConverter = fileConverter;
             this._firebaseStorageService = firebaseStorageService;
-            this._jwtUtils = jwtUtils;
+            this._jwtUtils = new JwtUtils(configuration);
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ArticleResponse?> CreateNewArticleByFile(ArticleCreationRequestFile request) {
@@ -186,11 +188,12 @@ namespace API.Services {
             return _mapper.Map<Collection<ArticleResponse>>(await _unitOfWork.ArticleRepository.GetAllAsync());
         }
 
-        public async Task<Collection<ArticleResponse>> GetPersonalArticles(string token)
+        public async Task<Collection<ArticleResponse>> GetPersonalArticles()
         {
-            var jwt = token.Split("Bearer")[1];
+            var authorizationHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
+            var jwt = authorizationHeader?.Split("Bearer ")[1];
             // TODO: get single claim
-            var claims = _jwtUtils.GetClaims(jwt);
+            var claims = _jwtUtils.GetClaims(jwt!);
             var id = int.Parse(claims.First(claim => claim.Type == ClaimTypes.Sid).Value);
             var user = await _unitOfWork.UserRepository.GetAsync(id);
             var articles = await _unitOfWork.ArticleRepository.GetAllAsync();
