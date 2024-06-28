@@ -13,7 +13,10 @@ namespace API.Utils {
     public static class DependencyInjection {
         public static void AddDependencies(this IServiceCollection services, IConfiguration configuration) {
             // dbcontext
-            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString: configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationDbContext>(options => {
+                options.UseNpgsql(connectionString: configuration.GetConnectionString("DefaultConnection"));
+                options.UseLazyLoadingProxies();
+            });
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
             services.AddScoped<UserRepository, UserRepositoryImplementation>();

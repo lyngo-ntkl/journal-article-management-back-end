@@ -13,7 +13,7 @@ namespace UnitTesting.User {
         [SetUp]
         public void SetUp() {
             var unitOfWork = new Mock<UnitOfWork>();
-            unitOfWork.Setup(uow => uow.UserRepository.GetAllAsync()).ReturnsAsync(new List<API.Entities.User> {
+            unitOfWork.Setup(uow => uow.UserRepository.GetAllAsync(default, default, "")).ReturnsAsync(new List<API.Entities.User> {
                 new API.Entities.User {
                     Id = 1,
                     Email = "user@example.com",

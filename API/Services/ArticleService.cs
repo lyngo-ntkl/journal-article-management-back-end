@@ -185,7 +185,7 @@ namespace API.Services {
 
         public async Task<Collection<ArticleResponse>> GetArticles()
         {
-            return _mapper.Map<Collection<ArticleResponse>>(await _unitOfWork.ArticleRepository.GetAllAsync());
+            return _mapper.Map<Collection<ArticleResponse>>(await _unitOfWork.ArticleRepository.GetAllAsync(includeProperties: $"{nameof(Article.Authors)}"));
         }
 
         public async Task<Collection<ArticleResponse>> GetPersonalArticles()
@@ -196,7 +196,9 @@ namespace API.Services {
             var claims = _jwtUtils.GetClaims(jwt!);
             var id = int.Parse(claims.First(claim => claim.Type == ClaimTypes.Sid).Value);
             var user = await _unitOfWork.UserRepository.GetAsync(id);
-            var articles = await _unitOfWork.ArticleRepository.GetAllAsync();
+
+            // TODO: expression tree
+            var articles = await _unitOfWork.ArticleRepository.GetAllAsync(includeProperties: $"{nameof(Article.Authors)}");
             articles = articles.FindAll(article => article.Authors?.FirstOrDefault(author => author.Id == id) != null);
             return _mapper.Map<Collection<ArticleResponse>>(articles);
         }
