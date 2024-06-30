@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace API.Repositories {
-    public interface GenericRepository<T> where T: BaseEntity {
+    public interface GenericRepository<T> where T: SimpleBaseEntity {
         void Delete(T entity);
         Task DeleteAsync(int id);
         T? Get(int id);
@@ -16,7 +16,7 @@ namespace API.Repositories {
         T Update(T entity);
     }
 
-    public class GenericRepositoryImplementation<T> : GenericRepository<T> where T : BaseEntity
+    public class GenericRepositoryImplementation<T> : GenericRepository<T> where T : SimpleBaseEntity
     {
         private readonly ApplicationDbContext _dbContext;
         private DbSet<T> _dbSet;

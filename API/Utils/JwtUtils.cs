@@ -1,5 +1,6 @@
 ﻿using API.Entities;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using System.Collections.ObjectModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -44,6 +45,27 @@ namespace API.Utils
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.ReadJwtToken(jwt);
             return token.Claims;
+        }
+
+        public IEnumerable<Claim>? ExtractClaimsFromAuthorizationHeader(IHttpContextAccessor httpContextAccessor) {
+            var authorizationHeader = httpContextAccessor.GetAuthorizationHeader();
+
+            if (string.IsNullOrWhiteSpace(authorizationHeader)) {
+                return null;
+            }
+
+            var jwt = authorizationHeader?.Split("Bearer ", StringSplitOptions.RemoveEmptyEntries)[0];
+            return GetClaims(jwt!);
+        }
+
+        public string? GetSidClaim(IHttpContextAccessor httpContextAccessor) {
+            var claims = ExtractClaimsFromAuthorizationHeader(httpContextAccessor);
+            return claims?.FirstOrDefault(claim => claim.Type == ClaimTypes.Sid)?.Value;
+        }
+
+        public string? GetSidClaim(string jwt) {
+            var claims = GetClaims(jwt);
+            return claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Sid)?.Value;
         }
     }
 }

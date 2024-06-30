@@ -13,6 +13,7 @@ namespace API.Configurations {
             CreateMap<User, UserResponse>();
             CreateMap<EmailPasswordRegistrationRequest, User>()
                 .ForMember(user => user.Role, options => options.MapFrom(request => Role.READER));
+            CreateMap<AffiliationRequest, Affiliation>();
 
             // article-related
             CreateMap<ArticleCreationRequestText, Article>()
