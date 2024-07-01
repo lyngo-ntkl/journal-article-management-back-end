@@ -7,6 +7,10 @@ using Newtonsoft.Json;
 
 namespace UnitTesting.Article {
     public class ArticleCreationTest {
+        [SetUp]
+        public void SetUp() {
+            
+        }
         [Test]
         public async Task TestCreateArticleUsingTextSuccefully() {
             HttpClient client = new HttpClient();
