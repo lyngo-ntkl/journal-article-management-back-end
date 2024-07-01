@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 using API.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -8,9 +8,10 @@ namespace API.Repositories {
         void Delete(T entity);
         Task DeleteAsync(int id);
         T? Get(int id);
-        List<T> GetAll();
-        Task<List<T>> GetAllAsync();
+        List<T> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>,IOrderedQueryable<T>>? orderBy = null, string includeProperties = "");
+        Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>,IOrderedQueryable<T>>? orderBy = null, string includeProperties = "");
         Task<T?> GetAsync(int id);
+        Task<T?> GetAsync(int id, string include);
         T Insert(T entity);
         Task<T> InsertAsync(T entity);
         T Update(T entity);
@@ -45,19 +46,52 @@ namespace API.Repositories {
             return this._dbSet.Find(id);
         }
 
-        public List<T> GetAll()
+        public List<T> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>,IOrderedQueryable<T>>? orderBy = null, string includeProperties = "")
         {
-            return this._dbSet.ToList();
+            IQueryable<T> query = _dbSet;
+
+            if (filter != null) {
+                query = query.Where(filter);
+            }
+
+            foreach (var includeProperty in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries)) {
+                query = query.Include(includeProperty);
+            }
+
+            if (orderBy != null) {
+                return orderBy(query).ToList();
+            }
+
+            return query.ToList();
         }
 
-        public async Task<List<T>> GetAllAsync()
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>,IOrderedQueryable<T>>? orderBy = null, string includeProperties = "")
         {
-            return await this._dbSet.ToListAsync();
+            IQueryable<T> query = _dbSet;
+
+            if (filter != null) {
+                query = query.Where(filter);
+            }
+
+            foreach (var includeProperty in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries)) {
+                query = query.Include(includeProperty);
+            }
+
+            if (orderBy != null) {
+                return await orderBy(query).ToListAsync();
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<T?> GetAsync(int id)
         {
             return await this._dbSet.FindAsync(id);
+        }
+
+        public Task<T?> GetAsync(int id, string include)
+        {
+            throw new NotImplementedException();
         }
 
         public T Insert(T entity)
