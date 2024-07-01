@@ -7,6 +7,7 @@ using API.Services;
 using API.Utils;
 using AutoMapper;
 using Constant;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
@@ -30,7 +31,8 @@ namespace UnitTesting.User {
             var configuration = new Mock<IConfiguration>();
             var mapperConfiguration = new MapperConfiguration(config => config.AddProfile<MapperProfile>());
             var mapper = new Mapper(mapperConfiguration);
-            _userService = new UserServiceImplementation(unitOfWork.Object, configuration.Object, mapper);
+            var httpContextAccessor = new HttpContextAccessor();
+            _userService = new UserServiceImplementation(unitOfWork.Object, configuration.Object, mapper, httpContextAccessor);
         }
 
         [Test]

@@ -1,17 +1,14 @@
 using System.Collections.ObjectModel;
 using API.Dto.Requests;
 using API.Dto.Responses;
-using API.Entities;
 using API.Services;
 using API.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Extensions;
 
 namespace API.Controllers {
     [Route(ApiPath.Version1 + ApiPath.Api + ApiPath.Articles)]
     [ApiController]
-    // [AllowAnonymous]
     public class ArticleController: ControllerBase {
         private const string AuthorRole = "AUTHOR";
         private ArticleService _articleService;

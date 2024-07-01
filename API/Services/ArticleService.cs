@@ -190,11 +190,7 @@ namespace API.Services {
 
         public async Task<Collection<ArticleResponse>> GetPersonalArticles()
         {
-            var authorizationHeader = _httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
-            var jwt = authorizationHeader?.Split("Bearer ")[1];
-            // TODO: get single claim
-            var claims = _jwtUtils.GetClaims(jwt!);
-            var id = int.Parse(claims.First(claim => claim.Type == ClaimTypes.Sid).Value);
+            var id = int.Parse(_jwtUtils.GetSidClaim(_httpContextAccessor)!);
             var user = await _unitOfWork.UserRepository.GetAsync(id);
 
             // TODO: expression tree

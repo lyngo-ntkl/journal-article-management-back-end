@@ -16,5 +16,6 @@ namespace API.Entities {
         public required Role Role {get; set;}
 
         public virtual ICollection<Article> Articles {get; set;} = null!;
+        public virtual ICollection<Affiliation> Affiliations { get; set;} = null!;
     }
 }

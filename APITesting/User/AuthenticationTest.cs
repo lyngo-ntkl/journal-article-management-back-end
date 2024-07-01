@@ -4,6 +4,7 @@ using API.Services;
 using API.Utils;
 using AutoMapper;
 using Constant;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
@@ -26,7 +27,8 @@ namespace UnitTesting.User {
             var configuration = new Mock<IConfiguration>();
             configuration.Setup(m => m["security:secret-key"]).Returns(Key.SecuritySecretKey);
             var mapper = new Mock<IMapper>();
-            _userService = new UserServiceImplementation(unitOfWork.Object, configuration.Object, mapper.Object);
+            var httpContextAccessor = new HttpContextAccessor();
+            _userService = new UserServiceImplementation(unitOfWork.Object, configuration.Object, mapper.Object, httpContextAccessor);
         }
 
         [Test]
