@@ -26,9 +26,10 @@ namespace API.Utils {
             // services
             services.AddScoped<UserService, UserServiceImplementation>();
             services.AddScoped<ArticleService, ArticleServiceImplementation>();
-            services.AddScoped<FirebaseStorageService, FirebaseStorageServiceImplementation>();
 
+            services.AddScoped<FirebaseStorageService, FirebaseStorageServiceImplementation>();
             services.AddScoped<FileConverter, FileConverterImplementation>();
+            services.AddScoped<PlagiarismService, PlagiarismServiceImplementation>();
             // controllers
             services.AddControllers()
                 .AddJsonOptions(options =>
