@@ -1,34 +1,19 @@
-using API.Dto.Responses;
-using API.Repositories;
-using API.Services;
 using API.Utils;
-using AutoMapper;
 using Constant;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Moq;
 
-namespace UnitTesting.User {
+namespace UnitTesting.Users {
     public class AuthenticationTest {
-        private UserService _userService;
+        private TestingServiceSetUp _setup;
         [SetUp]
         public void SetUp() {
-            var unitOfWork = new Mock<UnitOfWork>();
-            unitOfWork.Setup(uow => uow.UserRepository.GetAllAsync(default, default, "")).ReturnsAsync(new List<API.Entities.User> {
-                new API.Entities.User {
-                    Id = 1,
-                    Email = "user@example.com",
-                    Name = "User",
-                    Role = API.Entities.Role.READER,
-                    PasswordHash = "CEKeMeLiKoqYgaaQcRGPLiEiFlRZNUuj9mte7N1FLh4=",
-                    PasswordSalt = "3wxJSQvxsdLCs4E37G3Igg=="
-                }
-            });
-            var configuration = new Mock<IConfiguration>();
-            configuration.Setup(m => m["security:secret-key"]).Returns(Key.SecuritySecretKey);
-            var mapper = new Mock<IMapper>();
-            var httpContextAccessor = new HttpContextAccessor();
-            _userService = new UserServiceImplementation(unitOfWork.Object, configuration.Object, mapper.Object, httpContextAccessor);
+            _setup = new TestingServiceSetUp();
+            // _setup.UnitOfWork.Setup(uow => uow.UserRepository.GetAllAsync(default, default, "")).ReturnsAsync(new List<API.Entities.User> {
+            //     MockData.Readers[0],
+            //     MockData.Authors[0],
+            //     MockData.Authors[1]
+            // });
+            _setup.Configuration.Setup(m => m["security:secret-key"]).Returns(Key.SecuritySecretKey);
         }
 
         [Test]
@@ -37,7 +22,7 @@ namespace UnitTesting.User {
                 Email = "user@example.com",
                 Password = "HelloWorld12345!!"
             };
-            var actual = await _userService.LoginWithEmailPassword(request);
+            var actual = await _setup.UserService.LoginWithEmailPassword(request);
 
             Assert.NotNull(actual);
             Assert.IsNotEmpty(actual.AccessToken);
@@ -50,7 +35,7 @@ namespace UnitTesting.User {
                 Password = "HelloWorld12345!!"
             };
 
-            var exception = Assert.ThrowsAsync<Exception>(async () => await _userService.LoginWithEmailPassword(request));
+            var exception = Assert.ThrowsAsync<Exception>(async () => await _setup.UserService.LoginWithEmailPassword(request));
             Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.EmailNotFound));
         }
 
@@ -61,7 +46,7 @@ namespace UnitTesting.User {
                 Password = "HelloWorld12345!"
             };
 
-            var exception = Assert.ThrowsAsync<Exception>(async delegate { await _userService.LoginWithEmailPassword(request);});
+            var exception = Assert.ThrowsAsync<Exception>(async delegate { await _setup.UserService.LoginWithEmailPassword(request);});
             Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.PasswordNotFound));
         }
     }

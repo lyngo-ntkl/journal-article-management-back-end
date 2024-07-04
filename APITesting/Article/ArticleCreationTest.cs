@@ -2,11 +2,14 @@ using System.Collections.ObjectModel;
 using System.Net.Http.Json;
 using System.Text;
 using Constant;
-using Microsoft.OpenApi.Extensions;
 using Newtonsoft.Json;
 
-namespace UnitTesting.Article {
+namespace UnitTesting.Articles {
     public class ArticleCreationTest {
+        [SetUp]
+        public void SetUp() {
+            
+        }
         [Test]
         public async Task TestCreateArticleUsingTextSuccefully() {
             HttpClient client = new HttpClient();

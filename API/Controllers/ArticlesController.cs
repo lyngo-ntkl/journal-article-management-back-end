@@ -18,11 +18,13 @@ namespace API.Controllers {
             _articleService = articleService;
         }
 
+        [Authorize(Roles = AuthorRole)]
         [HttpPost("text")]
         public async Task<ArticleResponse?> CreateNewArticleByText(ArticleCreationRequestText request) {
             return await _articleService.CreateNewArticleByText(request);
         }
 
+        [Authorize(Roles = AuthorRole)]
         [HttpPost("file")]
         public async Task<ArticleResponse?> CreateNewArticleByFile([FromForm] ArticleCreationRequestFile request) {
             return await _articleService.CreateNewArticleByFile(request);
@@ -40,25 +42,29 @@ namespace API.Controllers {
         }
 
         [HttpGet("{id}")]
-        public async Task<ArticleResponse?> GetArticle(int id) {
+        public async Task<ArticleResponse?> GetPublishedArticle(int id) {
             return await _articleService.GetArticle(id);
         }
 
+        [Authorize(Roles = AuthorRole)]
         [HttpPut("{id}")]
         public async Task<ArticleResponse?> UpdateArticle(int id, ArticleUpdateRequest request) {
             return await _articleService.UpdateArticle(id, request);
         }
 
+        [Authorize(Roles = AuthorRole)]
         [HttpDelete("drafts/{id}")]
         public async Task<ArticleResponse> DeleteDraftArticle(int id) {
             return await _articleService.DeleteDraftArticle(id);
         }
 
+        [Authorize(Roles = AuthorRole)]
         [HttpDelete("drafts/{id}/permanence")]
         public async Task<ArticleResponse> DeleteDraftArticlePermanent(int id) {
             return await _articleService.DeleteDraftArticlePermanent(id);
         }
 
+        [Authorize(Roles = AuthorRole)]
         [HttpPut("submission/{id}")]
         public async Task<ArticleResponse> SubmitArticle(int id) {
             // TODO: Plagiarism checker
