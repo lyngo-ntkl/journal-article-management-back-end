@@ -147,7 +147,20 @@ namespace API.Services {
         public async Task<ArticleResponse?> UpdateArticle(int articleId, ArticleUpdateRequest request)
         {
             try {
+                var id = int.Parse(_jwtUtils.GetSidClaim(_httpContextAccessor)!);
+                if (request.AuthorIds != null && !request.AuthorIds.Contains(id)) {
+                    throw new Exception(ExceptionMessage.UnauthorityToModifyArticle);
+                }
+
+                // TODO: History. Should remove once the article is published/approved
                 var article = await GetArticleEntity(articleId);
+
+                if (article.Status != ArticleStatus.DRAFTED &&
+                    article.Status != ArticleStatus.MINOR_REVISION &&
+                    article.Status != ArticleStatus.MAJOR_REVISION) {
+                    throw new Exception(ExceptionMessage.UnableToEdit);
+                }
+
                 article = _unitOfWork.ArticleRepository.Update(_mapper.Map(request, article));
                 return _mapper.Map<ArticleResponse>(article);
             } catch (Exception e) {
