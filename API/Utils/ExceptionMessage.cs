@@ -15,5 +15,7 @@
         public const string WrongFileFormat = "The accepted file format including the following section: Title, abstract, introduction, method, results, conclusion";
         public const string UnableToSubmit = "Only draft or revision article can be submitted";
         public const string UnqualifiedSubmission = "The submission is lack of information";
+        public const string NotCheckPlagiarism = "The article hasn't checked plagiarism yet";
+        public const string PlagiarizedSubmisstion = "Can't not submit article with plagiarism percentage larger than 15%";
     }
 }

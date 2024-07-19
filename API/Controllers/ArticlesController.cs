@@ -3,6 +3,7 @@ using API.Dto.Requests;
 using API.Dto.Responses;
 using API.Services;
 using API.Utils;
+using Copyleaks.SDK.V3.API.Models.Responses.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +12,13 @@ namespace API.Controllers {
     [ApiController]
     public class ArticleController: ControllerBase {
         private const string AuthorRole = "AUTHOR";
-        private ArticleService _articleService;
+        private readonly ArticleService _articleService;
+        private readonly CopyleaksPlagiarismService _copyleaksPlagiarismService;
 
-        public ArticleController(ArticleService articleService)
+        public ArticleController(ArticleService articleService, CopyleaksPlagiarismService copyleaksPlagiarismService)
         {
             _articleService = articleService;
+            _copyleaksPlagiarismService = copyleaksPlagiarismService;
         }
 
         [HttpPost("text")]
@@ -63,6 +66,11 @@ namespace API.Controllers {
         public async Task<ArticleResponse> SubmitArticle(int id) {
             // TODO: Plagiarism checker
             return await _articleService.SubmitArticle(id);
+        }
+
+        [HttpPost("/copyleaks/plagiarism/{status}/{scanId}")]
+        public async Task ReceivePlagiarismResult(string status, string scanId, Result request) {
+            await _copyleaksPlagiarismService.ProcessResult(status, scanId, request);
         }
     }
 }

@@ -12,6 +12,8 @@ namespace API.Entities {
         public ArticleStatus Status {get; set;}
         public string? DoiNumber {get; set;}
         public string? FilePath {get; set;}
+        public double? PlagiarismPercentage {get; set;}
+        public bool? Plagiarism {get; set;}
         public virtual ICollection<User>? Authors {get; set;}
         public virtual ICollection<Topic>? Topics {get; set;}
         public virtual ICollection<Reference>? References {get; set;}

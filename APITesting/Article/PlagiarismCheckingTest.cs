@@ -5,14 +5,14 @@ using Moq;
 
 namespace UnitTesting.Article {
     public class PlagiarismCheckingTest {
-        private PlagiarismService _plagiarismService;
+        private CopyleaksPlagiarismService _plagiarismService;
         [SetUp]
         public void SetUp() {
             // Arrange
             var configuration = new Mock<IConfiguration>();
             configuration.Setup(config => config["copyleaks:email"]).Returns(Key.CopyleaksEmail);
             configuration.Setup(config => config["copyleaks:key"]).Returns(Key.CopyleaksKey);
-            _plagiarismService = new PlagiarismServiceImplementation(configuration.Object);
+            _plagiarismService = new CopyleaksPlagiarismServiceImplementation(configuration.Object);
         }
 
         // [Test]

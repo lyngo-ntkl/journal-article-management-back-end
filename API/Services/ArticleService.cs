@@ -26,6 +26,7 @@ namespace API.Services {
     public class ArticleServiceImplementation : ArticleService
     {
         private const string ArticleStructurePattern = "(?:Abstract|Abstraction)(?:\n|\r\n)((?:.|\n|\r\n)*)Introduction(?:\n|\r\n)((?:.|\n|\r\n)*)(?:Methods|Methodology)(?:\n|\r\n)((?:.|\n|\r\n)*)Results(?:\n|\r\n)((?:.|\n|\r\n)*)Conclusion(?:\n|\r\n)((?:.|\n|\r\n)*)References(?:\n|\r\n)((?:.|\n|\r\n)*)";
+        private const int MaximumAllowedPlagiarismPercentage = 15;
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly FileConverter _fileConverter;
@@ -163,6 +164,15 @@ namespace API.Services {
                 article.Status != ArticleStatus.MINOR_REVISION &&
                 article.Status != ArticleStatus.MAJOR_REVISION) {
                 throw new Exception(ExceptionMessage.UnableToSubmit);
+            }
+
+            if (article.Plagiarism == null) {
+                throw new Exception(ExceptionMessage.NotCheckPlagiarism);
+            }
+
+            if (article.Plagiarism.Value &&
+                article.PlagiarismPercentage != null && article.PlagiarismPercentage > MaximumAllowedPlagiarismPercentage) {
+                throw new Exception(ExceptionMessage.PlagiarizedSubmisstion);
             }
 
             if (string.IsNullOrWhiteSpace(article.Title) ||

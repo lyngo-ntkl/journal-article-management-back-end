@@ -29,7 +29,7 @@ namespace API.Utils {
 
             services.AddScoped<FirebaseStorageService, FirebaseStorageServiceImplementation>();
             services.AddScoped<FileConverter, FileConverterImplementation>();
-            services.AddScoped<PlagiarismService, PlagiarismServiceImplementation>();
+            services.AddScoped<CopyleaksPlagiarismService, CopyleaksPlagiarismServiceImplementation>();
             // controllers
             services.AddControllers()
                 .AddJsonOptions(options =>
