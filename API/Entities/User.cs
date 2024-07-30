@@ -14,6 +14,8 @@ namespace API.Entities {
         public required string PasswordHash {get; set;}
         public required string Name {get; set;}
         public required Role Role {get; set;}
+        // TODO: may effect registration as author, submit, published, reference article
+        public int? HIndex { get; set;}
 
         public virtual ICollection<Article> Articles {get; set;} = null!;
         public virtual ICollection<Affiliation> Affiliations { get; set;} = null!;

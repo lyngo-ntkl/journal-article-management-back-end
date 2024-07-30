@@ -2,7 +2,6 @@ using API.Converter;
 using API.Dto.Requests;
 using API.Dto.Responses;
 using API.Entities;
-using API.Enums;
 using AutoMapper;
 
 namespace API.Configurations {

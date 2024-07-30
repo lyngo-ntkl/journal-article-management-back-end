@@ -1,4 +1,4 @@
-using API.Enums;
+using API.Entities;
 
 namespace API.Dto.Responses {
     public class ArticleResponse {

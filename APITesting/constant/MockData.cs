@@ -85,7 +85,7 @@ namespace Constant {
                         Topics[9]
                     ],
                     References = [],
-                    Status = API.Enums.ArticleStatus.APPROVED
+                    Status = ArticleStatus.APPROVED
             }
         ];
         public static Article[] DraftArticles = [
@@ -111,7 +111,7 @@ namespace Constant {
                             ReferenceArticleId = 2
                         }
                     ],
-                    Status = API.Enums.ArticleStatus.DRAFTED
+                    Status = ArticleStatus.DRAFTED
             }
         ];
     }

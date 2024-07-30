@@ -6,5 +6,6 @@ namespace API.Utils{
         public const string Articles = "/articles";
         public const string Users = "/users";
         public const string Test = "/test";
+        public const string Review = "reviews";
     }
 }

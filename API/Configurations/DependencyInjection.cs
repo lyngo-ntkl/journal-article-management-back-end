@@ -23,9 +23,11 @@ namespace API.Utils {
             services.AddScoped<ArticleRepository, ArticleRepositoryImplementation>();
             services.AddScoped<TopicRepository, TopicRepositoryImplementation>();
             services.AddScoped<ReferenceRepository, ReferenceRepositoryImplementation>();
+            services.AddScoped<ReviewRequestRepository, ReviewRequestRepositoryImplementation>();
             // services
             services.AddScoped<UserService, UserServiceImplementation>();
             services.AddScoped<ArticleService, ArticleServiceImplementation>();
+            services.AddScoped<ReviewRequestService, ReviewRequestServiceImplementation>();
             services.AddScoped<FirebaseStorageService, FirebaseStorageServiceImplementation>();
 
             services.AddScoped<FileConverter, FileConverterImplementation>();

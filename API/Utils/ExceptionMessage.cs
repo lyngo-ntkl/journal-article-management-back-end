@@ -17,5 +17,7 @@
         public const string UnqualifiedSubmission = "The submission is lack of information";
         public const string UnableToEdit = "Only draft or revision article is editable";
         public const string UnauthorityToModifyArticle = "Unauthority To Modify Article";
+        public const string DeprecatedOrUnsupportedMethod = "method is deprecated or not supported.";
+        public const string NotSubmittedArticle = "Article has not been submitted";
     }
 }

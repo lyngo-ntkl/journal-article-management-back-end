@@ -20,6 +20,7 @@ namespace Constant {
         public FirebaseConfiguration FirebaseConfiguration { get; private set; }
         public UserService UserService { get; private set; }
         public ArticleService ArticleService { get; private set; }
+        public ReviewRequestRepository ReviewRequestRepository { get; private set; }
 
         public TestingServiceSetUp()
         {
@@ -28,7 +29,7 @@ namespace Constant {
             ApplicationDbContext.Database.EnsureDeleted();
             ApplicationDbContext.Database.EnsureCreated();
 
-            UnitOfWork = new UnitOfWorkImplementation(ApplicationDbContext, new UserRepositoryImplementation(ApplicationDbContext), new ArticleRepositoryImplementation(ApplicationDbContext), new TopicRepositoryImplementation(ApplicationDbContext), new ReferenceRepositoryImplementation(ApplicationDbContext));
+            UnitOfWork = new UnitOfWorkImplementation(ApplicationDbContext, new UserRepositoryImplementation(ApplicationDbContext), new ArticleRepositoryImplementation(ApplicationDbContext), new TopicRepositoryImplementation(ApplicationDbContext), new ReferenceRepositoryImplementation(ApplicationDbContext), new ReviewRequestRepositoryImplementation(ApplicationDbContext));
             Mapper = new Mapper(new MapperConfiguration(config => config.AddProfile<MapperProfile>()));
             Configuration = new Mock<IConfiguration>();
             HttpContextAccessor = new Mock<IHttpContextAccessor>();

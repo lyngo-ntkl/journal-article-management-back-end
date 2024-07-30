@@ -11,6 +11,8 @@ namespace API.Entities {
         public virtual DbSet<Article> Articles {get; set;}
         public virtual DbSet<Topic> Topics {get; set;}
         public virtual DbSet<Reference> References {get; set;}
+        public virtual DbSet<ReviewRequest> ReviewRequests { get; set;}
+        public virtual DbSet<Keyword> Keywords { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Reference>().HasKey(reference => new {reference.ArticleId, reference.ReferenceArticleId});
@@ -26,6 +28,9 @@ namespace API.Entities {
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<Institution>()
                 .HasIndex(institution => new {institution.Name, institution.CountryId})
+                .IsUnique();
+            modelBuilder.Entity<ReviewRequest>()
+                .HasIndex(reviewRequest => new { reviewRequest.ArticleId, reviewRequest.ReviewerId })
                 .IsUnique();
             InitializeTestData(modelBuilder);
         }
