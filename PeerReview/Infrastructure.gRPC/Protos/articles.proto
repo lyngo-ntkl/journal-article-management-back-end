@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option csharp_namespace = "Infrastructure.gRPC.Protos";
+
+service ArticlesAPI {
+	rpc GetArticle(GrpcGetArticleRequest) returns (GrpcArticleResponse);
+	rpc GetArticles(GrpcGetArticlesRequest) returns (GrpcGetArticlesResponse);
+	rpc SubmitArticle(GrpcSubmitArticleRequest) returns (GrpcSubmitArticleResponse);
+}
+
+message GrpcArticleResponse {
+	string message = 1;
+}
+
+message GrpcGetArticleRequest {
+	int32 id = 1;
+}
+
+message GrpcGetArticlesRequest {
+	GrpcPagination pagination = 1;
+}
+
+message GrpcGetArticlesResponse {
+	repeated GrpcArticleResponse articles = 1;
+}
+
+message GrpcPagination {
+	int32 page = 1;
+	int32 pageSize = 10;
+}
+
+message GrpcSubmitArticleRequest {
+
+}
+
+message GrpcSubmitArticleResponse {
+	int32 id = 1;
+}
