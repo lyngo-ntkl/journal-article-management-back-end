@@ -1,0 +1,24 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Infrastructure.gRPC.Protos";
+
+service ReviewRequestAPI {
+	rpc AcceptReviewRequest(GrpcReviewRequestId) returns (GrpcReviewRequestResponse);
+	rpc RejectReviewRequest(GrpcReviewRequestId) returns (GrpcReviewRequestResponse);
+}
+
+message GrpcReviewRequestId {
+	int32 id = 1;
+}
+
+message GrpcReviewRequestResponse {
+	int32 id = 1;
+	GrpcReviewRequestStatus Status = 2;
+	google.protobuf.Timestamp requestTimeout = 3;
+	int32 articleId = 4;
+}
+
+enum GrpcReviewRequestStatus {
+	Sent = 0; Accepted = 1; Rejected = 2; Timeout = 3;
+}

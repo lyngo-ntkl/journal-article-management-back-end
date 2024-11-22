@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option csharp_namespace = "Infrastructure.gRPC.Protos";
+
+service ManuscriptAPI {
+	rpc GetManuscript(GrpcGetManuscriptRequest) returns (GrpcManuscriptResponse);
+	rpc GetManuscriptsForAuthor(GrpcGetManuscriptsRequest) returns (GrpcGetManuscriptsResponse);
+	rpc GetManuscriptsForReviewer(GrpcGetManuscriptsRequest) returns (GrpcGetManuscriptsResponse);
+	rpc GetManuscriptsForEditor(GrpcGetManuscriptsRequest) returns (GrpcGetManuscriptsResponse);
+	rpc SubmitManuscript(GrpcSubmitManuscriptRequest) returns (GrpcSubmitManuscriptResponse);
+}
+
+message GrpcManuscriptResponse {
+	string message = 1;
+}
+
+message GrpcGetManuscriptRequest {
+	int32 id = 1;
+}
+
+message GrpcGetManuscriptsRequest {
+	GrpcPagination pagination = 1;
+}
+
+message GrpcGetManuscriptsResponse {
+	repeated GrpcManuscriptResponse Manuscripts = 1;
+}
+
+message GrpcPagination {
+	int32 page = 1;
+	int32 pageSize = 10;
+}
+
+message GrpcSubmitManuscriptRequest {
+
+}
+
+message GrpcSubmitManuscriptResponse {
+	int32 id = 1;
+}
