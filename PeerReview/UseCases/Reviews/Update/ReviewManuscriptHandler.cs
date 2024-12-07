@@ -1,6 +1,6 @@
 ﻿namespace UseCases.Reviews.Update
 {
-    public class ReviewArticleHandler : IReviewArticle
+    public class ReviewManuscriptHandler : IReviewManuscript
     {
         public Task SubmitReviewAsync(int id)
         {
